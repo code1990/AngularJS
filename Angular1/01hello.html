@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--如果你想要你的应用自动启动 Angular 的话，那就把 ng-app 放在应用的根结点中，通常情况下是 <html> 标签中	-->
+<!--如果你的应用需要支持 IE7  <html ng-app id="ng-app">-->
+<!--如果你要使用 ng: 这样的老风格的指令方式，那就在 html 中加入 xml命名空间-->
+<html xmlns:ng="http://angularjs.org" ng-app>
+
+	<head>
+
+		<meta charset="utf-8" />
+		<title></title>
+		<!--<script src="http://code.angularjs.org/angular.js"></script>-->
+		<script>
+			/*手动初始化*/
+			/*当angular.bootstrap被调用时候 angular.resumeBootstrap() 被调用 实现延迟启动*/
+			/*angular.element(document).ready(function() {
+				angular.module('myApp', []);
+				angular.bootstrap(document, ['myApp']);
+			});*/
+		</script>
+		<script type="text/javascript" src="js/angular-1.2.6/angular.min.js"></script>
+	</head>
+
+	<body>
+		{{'Hello 欢迎来到Angular的世界'}}
+		<!--| 管道 表示过滤器 格式化数据-->
+		<p>1.98+2.98={{ 1.98  +  2.98 | number :0 }}</p>
+		
+		<!--绑定一个页面元素的Angular程序-->
+		<div ng-controller="usercontroller">
+			<!--ng-model绑定数据内容-->
+			<input id="text" type="text" ng-model="user.name" />
+			<div>{{user.name}}</div>
+		</div>
+		
+		<!--在页面绑定多个元素-->
+		<!--ng-controller用来声明控制器的类型-->
+		<div ng-controller="stucontroller">
+			<ul>
+				<!--ng-repeat表示复制每一个li-->
+				<li ng-repeat="stu in data">
+					<span>{{stu.name}}</span>
+					<span>{{stu.sex}}</span>
+					<span>{{stu.age}}</span>
+					<span>{{stu.score}}</span>
+					
+				</li>
+			</ul>
+		</div>
+	</body>
+	<!--在HTML页面底部放置 script 标签。这样可以优化应用的加载时间，因为避免了HTML加载时被 angular.js 脚步的加载阻滞-->
+	<!--<script type="text/javascript" src="js/angular.min.js"></script>-->
+	
+	<script type="text/javascript">
+		function usercontroller($scope){
+			$scope.user = {name:""};
+		}
+		function stucontroller($scope){
+			$scope.data=[
+				{name:"a",sex:"f",age:1,score:1},
+				{name:"b",sex:"f",age:1,score:1},
+				{name:"c",sex:"f",age:1,score:1},
+				{name:"d",sex:"f",age:1,score:1},
+				{name:"e",sex:"f",age:1,score:1}
+			];
+		}
+	</script>
+
+</html>
