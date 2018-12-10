@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html ng-app>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.show{
+				border:solid 1px #ccc;
+				padding:8px;
+				width:260px;
+				margin:10px 0px;
+			}
+		</style>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
+	</head>
+	<body>
+		<!--通过new方法来创建对象的一个实例 称为创建注入-->
+		<!--angular的依赖注入是指当一个对象建立以后 需要依赖于其他对象 申明依赖关系以后可以注入对象-->
+		
+		<!--4.1依赖注入的原理-->
+		<div ng-controller="c4_1">
+			<div class="{{cls}}">{{show}}</div>
+			<button ng-click="onClick()"></button>
+		</div>
+		
+		<!--4.2简单依赖注入的实例-->
+		<div ng-controller="c4_2">
+			<div class="{{cls}}">{{text}}</div>
+			<button ng-click="onClick(1)"></button>
+			<button ng-click="onClick(2)"></button>
+			<button ng-click="onClick(3)"></button>
+			<button ng-click="onClick(4)"></button>
+		</div>
+		
+		<!--4.3依赖注入标记-->
+		<!--依赖注入的3种形式 推断式注入 标记式注入 行内注入-->
+		
+		<!--4.3推断式注入-->
+		<div ng-controller="c4_3">
+			<input id="btnAlert" type="button" value="弹出对话框" ng-click="onClick('我是一个alert')" />
+		</div>
+		
+		<!--4.4 标记式注入的实例-->
+		<div class="show">{{text}}</div>
+		<input id="btnShow" type="button" value="弹出" ng-click="onShow('alert')"/>
+		<input id="btnWrite" type="button" value="显示" ng-click="onWrite('alert')"/>
+		
+		<!--4.5行内式注入的方式-->	
+		<div ng-controller="c4_5">
+			<div class="show">{{text}}</div>
+			<input id="btnSum" type="button" value="未知" ng-click="onClick(5,10)" />
+		</div>	
+		
+		
+		<!--$inject常用API 整个angular注入对象的创建都由它负责定位和创建 它有很多实用的API方法-->
+		<!--has 根据传入的名称 从注册的列表中查找对应的服务 如果找到返回true-->
+		<!--get方法将返回指定名称对应的服务实例 获取到服务的实例对象以后可以直接调用-->
+		
+		<!--4.6 has 和get方法的实例-->
+		<div ng-controller="c4_6">
+			<!--试图组件-->
+		</div>
+		
+		<!--4.7 invoke方法 执行一个自定义的函数-->
+		<div ng-controller="c4_7">
+			<!--试图组件-->
+		</div>
+		<!--provide服务包含了几个重要的方法provider,factory,service,value 共同点：创建一个自定义的依赖注入对象-->
+		<script type="text/javascript" >
+			var a4_1 = angular.module('a4_1',[]);
+			//调用config函数进行服务注册 config函数用来声明需要注入的对象 
+			/*controller实际上是调用controllerProvider服务的register方法完成控制器的创建 控制器创建完毕 调用injectOr完成各个对象的 注入*/
+			a4_1.config(function($controllerProvider){
+				$controllerProvider.register('c4_1',['$scope',function($scope){
+					$scope.cls="";
+					$scope.onClick=function(){
+						$scope.cls="show";
+						$scope.show="213";
+					}
+				}]);
+			});
+			
+			//源码分析 先通过$provide服务中的provider(),factory(),value(),service()
+			//方法分别在模块中定义名称为show_n的可注入型变量 这些变量分别对应一个函数 这些函数的功能是相同的 返回用户输入的字符串
+			//在定义模块控制层代码时候 将定义好的变量全部作为依赖注入变量来使用
+			var a4_2= angular.module('a4_2',[]);
+			a4_2.config(function($provide){
+				$provide.provider('show_1',function(){
+					this.$get=function(){
+						return {
+							val:function(name){
+								return name;
+							}
+						}
+					}
+				});
+			});
+			a4_2.config(function($provide){
+				$provide.factory("show_2",function(){
+					return {
+						val:function(name){
+							return name;
+						}
+					}
+				});
+			});
+			a4_2.config(function($provide){
+				$provide.value("show_3",function(name){
+					return name;
+				});
+			});
+			a4_2.config(function($provide){
+				$provide.service("show_4",function(){
+					return {
+						val:function(name){
+							return name;
+						}
+					}
+				});
+			});
+			
+			a4_2.controller('c4_2',function($scope,show_1,show_2,show_3,show_4){
+				$scope.cls="";
+				$scope.onClick=function(t){
+					$scope.cls="show";
+					switch(t){
+						case 1:
+						 $scope.text = show_1.val("good morning");
+						 break;
+						 case 2:
+						 $scope.text = show_2.val("good morning");
+						 break;
+						 case 3:
+						 $scope.text = show_3.val("good morning");
+						 break;
+						  case 4:
+						 $scope.text = show_4.val("good morning");
+						 break;
+						 
+					}
+				}
+			});
+			
+			var a4_3 =angular.module("a4_3",[])
+			.factory("show",function($window){
+				return {
+					show:function(text){
+						$window.alert(text);
+					}
+				}
+			});
+			/*angular会自动通过annotate函数提取实例化参数传递来的列表 并最终通过注入器Injector将这些列表注入到
+			 控制器中*/
+			var c4_3=function($scope,$show){
+				$scope.onClick=function(msg){
+					$show.show(msg);
+				}
+			}
+			a4_3.controller("c4_3",c4_3);
+			
+			/*标记式注入的申明方式更加明显 明确一个函数在执行过程中需要依赖的各项服务*/
+			var a4_4 = function($scope,$show,$write){
+				$scope.onShow=function(msg){
+					$show.show(msg);
+				}
+				$scope.onWrite=function(msg){
+					$scope.text=$write.write(msg);
+				}
+				/*调用$inject方式注入三个服务 注入的服务名必须与函数在构造时候的参数名称和顺序完全一致 否则将会出现异常*/
+				$c4_4.$inject=['$scope','$show','$write'];
+				angular.module('a4_4',[]).controller('c4_4',c4_4)
+				.factory('$show',['$window',function($window){
+					return {
+						show:function(text){
+							$window.alert(text);
+						}
+					}
+				}]).factory('$write',function(){
+					return {
+						write:function(text){
+							return text;
+						}
+					}
+				})
+			}
+			
+			angular.module("a4_5",[]).factory(
+				'$sum',function(){
+					return {
+						add:function(m,n){
+							return m+n;
+						}
+					};
+				}
+			).controller("c4_5",["$scope","$sum"],
+			function($scope,$sum){
+				$scope.onClick=function(m,n){
+					$scope.text= m+"+"+n="="+$sum.add(m,n);
+				}
+			});
+			
+			var a4_6= angular.module('a4_6',[])
+			.factory('$custom',function(){
+				return {
+					print:function(msg){
+						console.log(msg);
+					}
+				}
+			})
+			
+			var injector = angular.injector(["a4_6","ng"]);
+			/*是否包含$custom的服务*/
+			var has = injector.has("$custom");
+			consle.log(has);
+			if(has){
+				var custom= injector.get("$custom");
+				custom.print("xxxx");
+			}
+			a4_6.controller("c4_6",["$scope","$custom",function($scope,$custom){
+				
+			}]);
+			
+			var a4_7= angular.module("a4_7",[])
+			.factory("$custom",function(){
+				return {
+					print:function(msg){
+						console.log(msg);
+					}
+				}
+			});
+			//定义一个名称为$custom的服务 自定义一个函数名称为fun的函数 并在这个函数中注入$custom服务 调用invoke方法
+			var injector2 = angular.injector(["a4_7","ng"]);
+			var fun=function($custom){
+				$custom.print("ok");
+			}
+			injector2.invoke(fun);
+			a4_7.controller("c4_7",["$scope","$custom",function($scope,$custom){
+				//控制器代码
+			}]);
+			
+			
+			/*依赖注入的场景*/
+			/*1.构建控制器的时候 2调用工厂方法构造模块的时候*/
+		</script>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</body>
+</html>

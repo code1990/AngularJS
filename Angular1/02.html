@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html ng-app>
+	<!--html ng-app="a2_4"-->
+	<!--html ng-app="a2_5"-->
+	<!--html ng-app="a2_6"-->
+	<!--html ng-app="a2_7"-->
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js"></script>
+		<script type="text/javascript">
+		</script>
+		<style type="text/css">
+			body {
+				font-size: 12px;
+			}
+			
+			ul {
+				list-style-type: none;
+				width: 400px;
+				margin: 0px;
+				padding: 0px;
+			}
+			
+			ul li {
+				float: left;
+				padding: 5px 0px;
+			}
+			
+			ul li span {
+				width: 50px;
+				float: left;
+				padding: 0px 10px;
+			}
+			
+			ul .odd {
+				color: red
+			}
+			
+			ul .even {
+				color: blue
+			}
+			
+			ul .focus {
+				background-color: pink;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--2.1JavaScript与angular的相互调用-->
+		<!--angular调用js 直接定义对应的方法即可-->
+		<!--js中调用angular 使用$eval()方法-->
+		<div ng-controller="c2_1">
+			执行JavaScript表达式<br />
+			<input type="text" ng-model="expr1" />
+			<button ng-click="testExp1(expr1)">计算</button>
+			<br /><br /> 执行Angular表达式
+			<br />
+			<input type="text" ng-model="expr2" />
+			<span ng-bind="$eval(expr2)"></span>
+
+		</div>
+		<!--2.2在窗口对象中调用表达式-->
+		<div ng-controller="c2_2">
+			<input type="text" ng-model="text" />
+			<button ng-click="show()">显示</button>
+		</div>
+
+		<!--2.3 Angular表达式的容错性-->
+		<!--Angular允许存在undefined，null存在-->
+		<div ng-controller="c2_3">
+			<span>{{tmp}}</span>
+			<button ng-click="error();">点击</button>
+		</div>
+
+		<!--2.4控制器初始化$scope对象-->
+		<!--<div ng-controller="c2_4">
+			<span>{{text}}</span>
+		</div>-->
+
+		<!--2.5通过表达式绑定$scope对象的方法-->
+		<!--<div ng-controller="c2_5">
+			<span>{{span_show()}}</span>
+		</div>-->
+
+		<!--2.6在事件中绑定$scope对象的方法-->
+		<!--<div ng-controller="c2_6">
+			<span>{{text}}</span>
+			<input id="btnShow" type="button" ng-click="click_show();" value="显示"/>
+		</div>-->
+
+		<!--2.7添加带参数的构造方法-->
+		<!--<div ng-controller="c2_7">
+			<span class="show">{{text}}</span>
+			<input id="btnShow" type="button" ng-click="click_show();" 
+				value="显示"/>
+			<input id="btnPara" type="button" ng-click="click_para('单机了带参数的按钮！');"
+				value="带参数显示"/>
+		</div>-->
+
+		<!--2.8 $scope对象方法和属性的继承-->
+		<!--<div ng-controller="c2_8">
+			/*子集元素继承了父级元素的属性和方法*/
+			/*最内层可以继承包含它的所有外层中 $scope 对象的属性和方法*/
+			<div ng-controller="c2_8_1">
+				<span class="show">{{text}}</span><br />
+				<span class="show">{{child_text}}</span>
+				<input id="btnShow" type="button" ng-click="click_show();"
+					value="继承" />
+			</div>
+		</div>-->
+
+		<!--2.9构建模板内容-->
+		<!--<script type="text/ng-template" id="tplbase">
+			姓名：{{name}},</br> 邮箱：{{email}}
+		</script>-->
+		<!--在导入模板内容时候，在导入时候先 添加ng-include 声明该元素的内容源于其他模板
+			添加src属性 指定对应的模板的名称 
+		-->
+		<!--<div ng-include src="tplbase" ng-controller="c2_9"></div>-->
+
+		<!--2.10 使用指令来复制元素 ng-repeat 同时有几个专有变量-->
+		<!--$first是否为首条 $last是否为尾条 $middle是否为中间条 $index索引-->
+
+		<div ng-controller="c2_10">
+			<ul>
+				<li ng-class="{{bold}}">
+					<span>序号</span>
+					<span>序号</span>
+					<span>序号</span>
+					<span>序号</span>
+					<span>序号</span>
+				</li>
+				<!--2.11 添加元素样式-->
+				<!--通过ng-class来绑定属性 CSS级别的属性值-->
+				<!--ng-class="{true:red}[flag]" 当flag为true时候 才会执行 绑定字符串-->
+				<!--ng-odd ng-even 分别绑定奇数行和偶数行-->
+				<!--ng-hide ng-show 直接控制隐藏或者显示  ng-switch 为true则显示 否则隐藏-->
+				<li ng-repeat="stu in data" ng-class-odd="'odd'" ng-class-even="'even'" ng-click="li_click({$index})" ng-class="{foucs:$index==focus}">
+					<span>{{$index+1}}</span>
+					<span>{{stu.name}}</span>
+					<span>{{stu.sex}}</span>
+					<span>{{$first}}</span>
+					<span>{{$last}}</span>
+				</li>
+			</ul>
+		</div>
+
+		<!--控制元素的显示和隐藏-->
+		<div ng-controller="c2_12">
+			<div ng-show="{{isShow}}">x</div>
+			<div ng-hide="{{isHide}}">x</div>
+			<ul ng-switch on={{swith}}>
+				<li ng-switch-when="1">x</li>
+				<li ng-switch-when="2">x</li>
+				<li ng-switch-default>更多</li>
+			</ul>
+		</div>
+
+		<!--表单基本验证功能-->
+		<!--$pristine表单内容是否未输入过 $dirty已经输入过  $valid验证通过 $invalid 不通过 $error错误提示信息-->
+
+		<!--表单的基本验证功能-->
+		<form name="temp_form" ng-submit="save" ng-controller="c2_12">
+			<div id="">
+				<input name="t_name" ng-model="name" type="text" required />
+				<span ng-show="temp_form.t_name.$error.required">姓名不能为空</span>
+			</div>
+			<div id="">
+				<input name="t_email" ng-model="email" type="email" required />
+				<span ng-show="temp_form.t_name.$error.required">姓名不能为空</span>
+			</div>
+			<div id="">
+				<input name="t_name" ng-model="name" type="text" required />
+				<span ng-show="temp_form.t_name.$error.required">姓名不能为空</span>
+				<span ng-show="temp_form.t_name.$error.email">邮件格式不合法</span>
+			</div>
+			<!--2.14 checkbox radio控件-->
+			<!--check-box radio可以通过ng-model指令绑定控制器的属性 无验证功能-->
+			<div>
+				<input type="checkbox" ng-model="a" ng-true-value="ok" ng-false-value="error" />
+			</div>
+			<div>
+				<input type="radio" ng-model="b" value="f" />f
+				<input type="radio" ng-model="b" value="m" />m
+			</div>
+			<!--表单select组件 借助ng-options指令 把属性等添加到option-->
+			<!--绑定简单的数组数据 采取最简单的方式 添加一个数组 通过ng-options指令属性值 采用for in 数组格式绑定-->
+			<!--采取as for in 方式绑定-->
+			<!--采取as for group by for in 方式绑定-->
+			<div>
+				<select ng-model="a" ng-options="v.id as v.name for v in a_data" ng-change="a_change(a)">
+					<option value="">请选择---</option>
+					<span>{{a_show}}</span>
+				</select>
+			</div>
+			<div>
+				<select ng-model="b" ng-options="v.id as v.name group by v.grade for v in b_data" ng-change="b_change(b)">
+					<option value="">请选择</option>
+					<span id="">
+						{{b_show}}
+					</span>
+				</select>
+			</div>
+			<div id="">
+				<input type="submit" ng-disabled="temp_form.$invalid" vlaue="提交" />
+			</div>
+		</form>
+
+		<script type="text/javascript">
+			function c2_1($scope) {
+				$scope.expr1 = 20;
+				$scope.expr2 = '20+1|number:0';
+				$scope.testExp1 = function(expr) {
+					var newv = parseInt(expr) + 1;
+					console.log(newv);
+				}
+			}
+
+			function c2_2($window, $scope) {
+				$scope.text = "";
+				$scope.show = function() {
+					$window.alert("你输入的内容是" + $scope.text);
+				}
+
+			}
+
+			function c2_3($scope) {
+				$scope.tmp = "Angular";
+				$scope.error = function() {
+					console.log(tmp);
+				}
+
+			}
+			/*自定义控制器函数的创建由全局方式修改为Angular模块下使用controller方式*/
+			/*这种方式更加强调页面是一个整体应用 控制器可以对应用中的某一个模块进行管理 拓展性和针对性更强*/
+			/*var a2_4 = angular.module('a2_4',[]);
+			a2_4.controller('c2_4',['$scope',function($scope){
+				$scope.text = "Hello !Angular";
+			}])*/
+
+			//除了可以通过初始化的方式为$scope对象添加属性以外 还可以给$scope对象添加方法
+
+			/*var a2_5 = angular.module('a2_5',[]);
+			a2_5.controller('c2_5',["$scope",function($scope){
+				$scope.text = "Hello Angular";
+				$scope.span_show=function(){
+					$scope.text="欢迎来到Angular的精彩世界!";
+					return $scope.text;
+				}
+			}]);*/
+
+			/*var a2_6 = angular.module('a2_6',[]);
+			a2_6.controller('c2_6',['$scope',function($scope){
+				$scope.text="Hello Angular";
+				$scope.click_show=function(){
+					$scope.text ="点击以后显示的内容";
+				}
+			}]);*/
+
+			/*var a2_7 = angular.module('a2_7',[]);
+			a2_7.controller('c2_7',['$scope',function($scope){
+				$scope.text="Hello Angular";
+				$scope.click_show=function(){
+					$scope.text="点击以后显示的内容!";
+				};
+				$scope.click_para = function(ptext){
+					$scope.text = ptext;
+				}
+			}]);*/
+
+			/*var a2_8 = angular.module('angular',[]);
+			a2_8.controller('c2_8',function($scope){
+				$scope.text="Hello ！Angular";
+				$scope.click_show=function(){
+					$scope.text="单机按钮显示以后的内容";
+				}
+			});
+			
+			
+			a2_8.controller("c2_8_1",['$scope',function($scope){
+				$scope.child_text="欢迎来到Angular的精彩世界!";
+			}]);*/
+
+			/*var a2_9 = angular.module('a2_9',[]);
+			a2_9.controller('c2_9',['$scope',function($scope){
+				$scope.name="xxx";
+				$scope.email="xxx@qq.com";
+			}]);*/
+
+			/*var a2_10 = angular.module('a2_10',[]);
+			a2_10.controller('c2_10',['$scope',function($scope){
+				$scope.data=[
+				{name:"x",sex:"x"},{name:"x",sex:"x"},{name:"x",sex:"x"}
+				];
+			}]);*/
+
+			/*var a2_11 = angular.module('a2_11',[]);
+			a2_11.controller('c2_11',['$scope',function($scope){
+				$scope.data="bold";
+				$scope.li_click=function(i){
+					$scope.focus = i;
+				}
+				$scope.data=[
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"}
+				];
+			}]);*/
+
+			/*var a2_12 = angular.module('a2_12',[]);
+			a2_12.controller('c2_12',['$scope',function($scope){
+				$scope.isShow = true;
+				$scope.isHide = false;
+				$scope.isSwitch=3;
+				$scope.li_click=function(i){
+					$scope.focus = i;
+				}
+				$scope.data=[
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"}
+				];
+			}]);*/
+
+			/*var a2_13 = angular.module('a2_13', []);
+			a2_13.controller('c2_13', ['$scope', function($scope) {
+				$scope.name = "xx";
+				$scope.email = "xx@qq.com";
+				$scope.save = function() {
+					console.log("提交成功");
+				}
+				$scope.data = [{
+						name: "x",
+						sex: "x"
+					},
+					{
+						name: "x",
+						sex: "x"
+					},
+					{
+						name: "x",
+						sex: "x"
+					}
+				];
+			}]);*/
+			
+			/*var a2_14 = angular.module('a2_14', []);
+			a2_14.controller('c2_14', ['$scope', function($scope) {
+				$scope.a = "ok";
+				$scope.b = "f";
+				$scope.save = function() {
+					console.log("提交成功");
+				}
+				$scope.data = [{
+						name: "x",
+						sex: "x"
+					},
+					{
+						name: "x",
+						sex: "x"
+					},
+					{
+						name: "x",
+						sex: "x"
+					}
+				];
+			}]);*/
+			
+			var a2_15 = angular.module('a2_15', []);
+			a2_15.controller('c2_15', ['$scope', function($scope) {
+				$scope.a_data =[
+					{id:"x",name:""}
+				];
+				$scope.b_data =[
+					{id:"x",name:"",grade:"一年级"}
+				];
+				$scope.a = "";
+				$scope.b= "";
+				$scope.a_change=function(a){
+					$scope.a_show="你选择的是"+a;
+				}
+				$scope.b_change=function(b){
+					$scope.b_show="你的选择的是"+b;
+				}
+			}]);
+		</script>
+
+	</body>
+
+</html>
