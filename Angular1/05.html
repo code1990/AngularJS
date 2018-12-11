@@ -1,9 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
 	<head>
 		<meta charset="UTF-8">
 		<title></title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
 	</head>
 	<body>
+		<!--5.1 Model组件的基础概念-->
+		<div ng-controller="c5_1">
+			<div class="show">{{name}}</div>
+			<!--ng-model隐式向作用域创建对象模型-->
+			<input ng-model="score" value="95" />
+			<div class="show">{{score}}</div>
+		</div>
+		
+		<!--5.2使用ngRepeater方式遍历Model对象-->
+		<div ng-controller="c5_2">
+			<p ng-repeat=" stu in data" class="show">
+				<span>{{stu.name}}</span>
+				<span>{{stu.sex}}</span>
+			</p>
+		</div>
+		
+		<!--5.3控制器的属性和方法-->
+		<div ng-controller="c5_3">
+			<button ng-click="changeA()">xxx</button>
+			<button ng-click="changeB()">xxx</button>
+			<p class="show">my name is {{name}}</p>
+		</div>
+		
+		<!--5.4控制器中方法的参数-->
+		<div ng-controller="c5_4">
+			<div class="show">
+				<input ng-model="a" value="0" />
+				<span>{{type}}</span>
+				<input ng-model="b" value="1" />
+				<span>=</span>
+				<span class="show">{{result}}</span>
+			</div>
+			<div class="show">
+				<button ng-click="change(1)">+</button>
+				<button ng-click="change(0)">*</button>
+			</div>
+		</div>
+		
+		<!--5.5控制器中的属性和方法的继承-->
+		<div ng-controller="c5_5">
+			<div class="show">
+				{{name_a+"/"+name_b+"/"+name_c+"/"score}}
+			</div>
+			<div ng-controller="c5_5_1">
+				<div class=show>
+					{{name_a+"/"+name_b+"/"+name_c+"/"score}}
+				</div>
+				<div ng-controller="c5_5_1_1">
+					<div class=show>
+					{{name_a+"/"+name_b+"/"+name_c+"/"score}}
+				</div>
+				</div>
+			</div>
+		</div>
+		
+		<!--5.6 view组件中模板切换 使用ng-view指令 在控制器中引入$routeProvider服务-->
+		<div>
+			<a href="#/">index</a>
+			<a href="#/book">game</a>
+			<a href="#/game">book</a>
+		</div>
+		<div ng-view></div>
+		
+		<!--5.7多个页面切换并传递参数-->
+		<!--学生信息主页-->
+		<div ng-view></div>
+		
+		<!--列表方式显示学生姓名自模板-->
+		<div ng-repeat="stu in students" class="show">
+			<a href="#view/{{stu.stuId}}">{{stu.name}}</a>
+		</div>
+		
+		<!--展示学习全部资料的子模板-->
+		<div class="show">
+			<div>学号：{{student.stuId}}</div>
+			<div>学号：{{student.name}}</div>
+			<div>学号：{{student.sex}}</div>
+			<div>学号：{{student.score}}</div>
+		</div>
+		<script type="text/javascript" >
+		var a5_1 = angular.module("a5_1",[]);
+		a5_1.controller("c5_1",["$scope",function($scope){
+			$scope.name="xxx";
+		}]);
+		
+		var a5_2 = angular.module("a5_2",[])
+		a5_2.controller("c5_2",["$scope",function($scope){
+			$scope.data = [
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"},
+				{name:"x",sex:"x"}
+			];
+		}]);
+		
+		var a5_3 = angular.module("a5_3",[]);
+		a5_3.controller("c5_3",["$scope",function($scope){
+			$scope.name ="xx";
+			$scope.changeA=function(){
+				$scope.name="nnn";
+			}
+			$scope.changeB=function(){
+				$scope.name= "xxxxx";
+			}
+		}]);
+		
+		var a5_4 = angular.module("a5_4",[]);
+		a5_4.controller("c5_4",["$scope",function($scope){
+			$scope.type="+";
+			$scope.change=function(t){
+				if(t){
+					$scope.type="+";
+					$scope.result = parseInt($scope.q)+parseInt($scope.b);
+				}else{
+					$scope.type="*";
+					$scope.result = $scope.a * $scope.b;
+				}
+			}
+		}]);
+		
+		var a5_5 = angular.module("a5_5",[]);
+		a5_5.controller("c5_5",["$scope",function($scope){
+			$scope.name_a="xxx";
+			$scope.score=60;
+		}]);
+		a5_5.controller("c5_5_1",["$scope",function($scope){
+			$scope.name_b="aa";
+			$scope.score=60;
+		}]);
+		a5_5.controller("c5_5_1_1",["$scope",function($scope){
+			$scope.name_c="aa";
+			$scope.score=60;
+		}]);
+		
+		var a5_6 = angular.module("a5_6",["ngRoute"]);
+		a5_6.controller("c5_6_1",["$scope",function($scope){
+			$scope.title="this is index";		
+		}]);
+		a5_6.controller("c5_6_2",["$scope",function($scope){
+			$scope.title="this is book";		
+		}]);
+		a5_6.controller("c5_6_3",["$scope",function($scope){
+			$scope.title="this is game";		
+		}]);
+		
+		/*构建视图 需要导入$routeProvider服务 并且配置好路由传递给该服务中的when函数*/
+		a5_6.config(["$routeProvider",function($routeProvider){
+			$routeProvider.when("/",{
+					controller:"c5_6_1",
+					template:"<div class='show'> {{title}}</div>"
+				}).when("/book",{
+					controller:"c5_6_2",
+					template:"<div class='show'> {{title}}</div>"
+				}).when("/game",{
+					controller:"c5_6_2",
+					template:"<div class='show'> {{title}}</div>"
+				}).otherwise({
+					redirectTo:"/"
+				});
+		}]);
+		
+		var a5_7 = angular.module("a5_7",["ngRoute"]);
+		a5_7.controller("c5_7_1",["$scope",function($scope){
+			$scope.students = studens;	
+		}]);
+		//页面传递到从参数将会保存到$routeParams服务当中
+		a5_7.controller("c5_7_2",["$scope",function($scope,$routeParams){
+			for(var i =0;i < students.length;i++){
+				if(students[i].stuId == $routeParams.id){
+					$scope.student = students[i];
+					break;
+				}
+			}
+		}]);
+		
+		/*调用$routeProvider服务设置路由传递参数 将路由的地址格式设置为/view/:id*/
+		a5_7.config(["$routeProvider",function($routeProvider){
+			$routeProvider.when("/",{
+				controller:"c5_7_1",
+				templateUrl:"5-7-1.html"
+			}).when("/view/:id",{
+				controller:"c5-7-2",
+				templateUrl:"5-7-1.html",
+				publicAccess:true
+			}).otherwise({
+				redirectTo:"/"
+			})
+		}]);
+		
+		
+		var students = [
+			{stuId:11,name:"Xx",sex:"xx",score:80}
+		];
+		</script>
 	</body>
 </html>
