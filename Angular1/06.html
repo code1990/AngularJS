@@ -1,9 +1,261 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
 	<head>
 		<meta charset="UTF-8">
 		<title></title>
 	</head>
+	<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
 	<body>
+		<!--Angular服务-->
+		<!--控制器中的数据在刷新时候会被清空 服务中的数据不会-->
+		<!--angular中的服务都是单例对象 实例化一次 在需要时候异步加载-->
+		<!--常用的内置服务 $scope $http $window $location 在控制器中直接调用-->
+		<div ng-controller="c6_1">
+			<div class="show">{{url}}</div>
+			<button ng-click="onclick()">show address</button>
+		</div>
+		
+		<!--定义服务的方法主要包括2种-->
+		<!--使用内置的$provide服务-->
+		<!--调用module中的服务注册方法-->
+		
+		<!--6.2 使用$provide自定义服务-->
+		<div ng-controller="c6_2">
+			<div class="show">
+				<span>{{info{"name"}}}</span>
+				<span>{{info{"sex"}}}</span>
+				<span>{{info{"sex"}}}</span>
+			</div>
+		</div>
+		
+		<!--6.3使用factory方法自定义服务-->
+		<div ng-controller="c6_3">
+			<div class="show">{{str("我是server content")}}</div>
+			<div class="show">{{name(1)}}</div>
+		</div>
+		
+		<!--6.4使用service自定义服务-->
+		<div ng-controller="c6_4">
+			<div class="show">name{{name}}</div>
+			<div class="show">email{{email}}</div>
+			<div class="show">{{title}}</div>
+			<button ng-click="say()">topic</button>
+		</div>
+		
+		<!--6.5使用constant和value方法用来自定义服务 用来返回一个常量-->
+		<div ng-controller="c6_5">
+			<div class="show">{{BOOK}}</div>
+			<div class="show">{{USD}}</div>
+		</div>
+		
+		<!--6.6在创建自定义服务中需要添加其他各类服务或者对象 添加方式三种-->
+		<!--1.隐式指明  2.调用$inject属性 3.显示声明-->
+		<!--添加自定义服务依赖项-->
+		<div ng-controller="c6_5">
+			<div class="show"> your select is{{result}}</div>
+			<button ng-click="confirm('are you sure!')">delete</button>
+		</div>
+		
+		<!--6.7有时候需要将自定义的服务注入到其他自定义服务中去-->
+		<!--嵌套注入服务-->
+		<div ng-controller="c6_7">
+			<button ng-click="ask(false,'are you sure?')">alert</button>
+			<button ng-click="ask(true,'are you delete')">ask</button>
+		</div>
+		
+		<!--6.8装饰器可以在不修改原有服务代码的情况下 添加一些功能-->
+		<div ng-controller="c6_8">
+			<div class="show">name:{{stu.name}}</div>
+			<div class="show">email:{{stu.email}}</div>
+			<div class="show">topic:{{stu.title}}</div>
+		</div>
+		
+		<!--6.9 服务的多样性 希望单例的服务返回多个实例对象-->
+		<div ng-controller="c6_9_1">
+			<div class="show">code:{{stu.code}}</div>
+			<div class="show">name:{{stu.name}}</div>
+			<div class="show">score:{{stu.score}}</div>
+			<button ng-click="reset();">reset</button>
+		</div>
+		<div ng-controller="c6_9_2">
+			<div class="show">code:{{stu.code}}</div>
+			<div class="show">name:{{stu.name}}</div>
+			<div class="show">score:{{stu.score}}</div>
+		</div>
+		<script type="text/javascript">
+			angular.module("a6_1",[])
+			/*通过依赖注入的方式注入$location服务*/
+			.controller("c6_1",function($scope,$location){
+				$scope.onclick=function(){
+					$scope.url = $location.absUrl();
+				}
+			})
+			
+			angular.module("a6_2",[],function($provide){
+				/*调用内置的服务$provide 调用该服务对象的factory 自定义一个$ouput服务*/
+				$provide.factory("$output",function(){
+					//定义一个json对象
+					var stu = {
+						name:"xx",
+						sex:"x",
+						score:"xx"
+					}
+					return stu;
+				})
+			}).controller("c6_2",function($scope,$output){
+				$scope.info = function(n){
+					for(_n in $output){
+						if(_n == n){
+							return ($output[_n]);
+						}
+					}
+				}
+			});
+			
+			angular.module("a6_3",[])
+			/*调用factory方法分别创建了2个服务 outfun outarr 前者返回名为str的函数 后者返回字符串数组*/
+			.factory("$outfun",function(){
+				return {
+					str:function(s){
+						return s;
+					}
+				};
+			}).factory("$outarr",function(){
+				return ["xx","xx","xx"];
+			}).controller("c6_3",function($scope,$outfun,$outarr){
+				$scope.arr= function(n){
+					return $outfun.str(n);
+				}
+				$scope.name = function(n){
+					return $outarr[n];
+				}
+			});
+			
+			/**/
+			angular.module("a6_4",[])
+			/*通过service的方法创建名为$student的服务 service方法返回构造函数*/
+			.service("$student",function(){
+				this.name ="x";
+				this.email = "x";
+				this.say=function(){
+					return "Hello Angular";
+				}
+			})
+			.controller("c6_4",function($scope,$student){
+				$scope.name = $student.name;
+				$scope.email = $student.email;
+				$scope.say = function(){
+					$scope.title = $student.say();
+				}
+			});
+			
+			angular.module("a6_5",[])
+			.constant("$ISBN",{
+				BOOK:"123"
+			})
+			.value("$RATE",{
+				USD:8.9
+			})
+			.controller("c6_5",function($scope,$ISBN,$RATE){
+				var n = 600;
+				/*使用angular.extend方法对服务对象的常量进行重置 显示600*/
+				angular.extend($RATE,{USD:n});
+				$scope.BOOK = $ISBN.BOOK;
+				$scope.USD = $RATE.USD;
+			})
+			
+			angular.module("a6_6",[])
+			/*调用service方法创建$nodify服务 注入一个window对象*/
+			/*注入window对象使用的是显示声明 即为创建一个数组 指明要注入的对象 被注入的对象window和参数名称win可以不同*/
+			.service("$notify",["$window",function($win){
+				return function(msg){
+					return $win.confirm(msg)?"yes":"no";
+				}
+			}])
+			.controller("c6_6",["$scope","$notify",function($scope,$notify){
+				$scope.confirm = function(msg){
+					$scope.result = $notify.msg;
+				}
+			}]);
+			
+			angular.module("a6_7",[])
+			/*调用factory方法创建一个名为confirm的服务 在创建的过程中注入名称为window的对象 调用该对象的confirm方法*/
+			.factory("$confirm",["$window",function($win){
+				return function(msg){
+					$win.confirm(msg);
+				}
+			}])
+			/*调用service方法 创建一个名称为notify的服务 在创建过程中显示声明的方式注入了window confirm服务 */
+			.service("$notify",["$window","$confirm",function($win,$con){
+				return function(t,msg){
+					return (t)?$con(msg):$win.alert(msg);
+				}
+			}])
+			/*注入$notify服务把服务对象返回的函数与试图模板中的点击按钮事件绑定*/
+			.controller("c6_7",function($scope,$notify){
+				$scope.ask = function(t,msg){
+					$notify(t,msg);
+				}
+			})
+			
+			angular.module("a6_8",[])
+			.facotry("$student",function(){
+				return {
+					name:"x",
+					email:"x"
+				}
+			})
+			/*调用provide服务中的decorator函数 通过delegate参数 去访问原服务中的对象*/
+			.config(function($provide){
+				/*delegate参数是$student服务的实例 通过装饰器向原有服务拓展一个名称为title属性的内容 就成为原来服务的一部分*/
+				$provide.decorator("$student",function ($delegate){
+					$delegate.title = "hello angular";
+					return $delegate
+					}
+				)
+			})
+			.controller("c6_8",function($scope,$student){
+				$scope.stu = $student;
+			});
+			
+			/*服务的多样性*/
+			/*首先 自定义一个名称为student的对象 传入json参数调用angular的extend方法初始化对象自身的一些属性值*/
+			/*同时创建一个reset方法*/
+			function student(json){
+				angular.extend(this,json){
+					this.reset = function(){
+						this.code = 100;
+						this.name = "jim";
+						this.score = 0;
+					}
+				}
+			}
+			/*给student对象添加一个create方法可以重置自己的内容*/
+			student.create = function(){
+				return new student({
+					code:1,
+					name:"x",
+					score:9
+				})
+			}
+			/*创建一个student的服务 并把student对象的create方法作为服务返回的函数*/
+			angular.module("a6_9",[])
+			.factory("$student",function(){
+				return {
+					create:student.create
+				}
+			})
+			//下面的2个控制器分别注入这个服务对象 将stu的值设置为服务对象的create方法 每一次调用都会创建一个新的student对象
+			/*注入的是单例 返回的服务对象却是多例的*/
+			.controller("c6_9_1",function($scope,$student){
+				$scope.stu = $student.create();
+				$scope.reset = function(){
+					$scope.stu.reset();
+				}
+			})
+			.controller("c6_9_2",function($scope,$student){
+				$scope.stu = $student.create();
+			});
+		</script>
 	</body>
 </html>
