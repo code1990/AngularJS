@@ -2,8 +2,312 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>Angular指令 是一个在特地DOM元素上执行的函数</title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
 	</head>
 	<body>
+		<!--8.1新增一个新的指令-->
+		<div class="show" id="c8_1">
+			<ts-hello></ts-hello>
+			<div ts-hello></div>
+			<div class="ts-hello"></div>
+			<div data-ts-hello></div>
+		</div>
+		
+		<!--8.2设置指令对象的基础属性 repalce:将模板内容替换为指令标记 当该属性为false时候 表示不替换为指令标记 而是插入标记中 默认为false-->
+		<!--templateUrl的属性值是一个URL地址 该地址将指向一个模板内容-->
+		<div class="show">
+			<ts-tplfile></ts-tplfile>
+			<ts-tplscript></ts-tplscript>
+			<ts-tplcache></ts-tplcache>
+		</div>
+		<script type="text/ng-template" id="tpl">
+			<h3>模板内容script元素</h3>
+		</script>
+		
+		<!--8.3 angular的其他属性 transclude link complie -->
+		<!--transclude 开启该属性可以调用ng-transclude替换指令元素中的内容-->
+		<!--link是可以操作DOM元素对象 包括绑定元素的各类事件-->
+		<!--complie属性返回一个函数或者对象-->
+		<!--8.3 设置transclude属性-->
+		
+		<script type="text/ng-template" id="tpl2">
+			<div class="show">
+				<input type="text" ng-model="text" />
+				<div ng-transclude class="tip"></div>
+			</div>
+		</script>
+		<ts-tplscript>{{text}}</ts-tplscript>
+		
+		<!--8.4设置指令对象中的link属性-->
+		<script type="text/ng-template" id="tpl3">
+			<button>click</button>
+		</script>
+		<div class="show">
+			<ts-tplscript></ts-tplscript>
+			<div class="tip">{{content}}</div>
+		</div>
+		
+		<!--8.5 设置指令对象complie属性 与link属性不同同时添加-->
+		<!--添加完了以后返回是一个函数或者对象 实际上都是创建了一个名为POST的链接函数 所以会忽略其他函数-->
+	
+		<div class="show" ng-controller="c8_5">
+			<ts-a>
+				<ts-b>
+					{{tip}}
+				</ts-b>
+			</ts-a>
+		</div>
+		
+		<!--8.6 scope 的属性值常常包括2种 一种是boolean 一种是json-->
+		<!--scope的属性值为false 不创建新的作用域 子类与父类的作用域相同 true 子作用域是独立创建的 内容发送变化不会修改父作用域的内容-->
+		<!--8.6 scope的属性是Boolean-->
+		<script type="text/ng-template" id="tpl4">
+			<div class="tip">
+				{{message}}
+			</div>
+			<button ng-transclude></button>
+		</script>
+		<div class="show">
+			<input ng-model="message" placeholder="alert" />
+			<ts-message>fixed</ts-message>
+		</div>
+		
+		<!--8.7 scope的作用域是对象 父类子类的作用域是独立的-->
+		<!--如果子作用域需要添加属性 必须先添加指令中的link函数 然后通过scope对象进行添加-->
+		<!--如果子作用域要绑定父作用域中的属性和方法 需要在scope属性对应的json对象中绑定策略-->
+		<!--scope对象的三种绑定策略 @ = 子类与父类共享属性 & 子类可以调用父类的属性-->
+		
+		<!--8.7 scope 作用域是json对象-->
+		<script type="text/ng-template" id="tpl4">
+			<div class="tip">
+				<span>name:{{textName}}</span>
+				<span>age:{{textAge}}</span>
+			</div>
+			<button ng-transclude></button>
+		</script>
+		
+		<form class="show" ng-controller="c8_7">
+			name:<input ng-model="text_name" placeholder="name" /><br />
+			age:<input ng-model="text_age" placeholder="age" />
+			<div class="tip">{{tip}}</div>
+			<ts-json a-attr="text_age" reset="reSet()">reset</ts-json>
+		</form>
+		
+		
+		<!--8.9 angular的指令对象的require和controller属性-->
+		<!--require属性在创建子元素指令时候添加 它的属性值用于描述与父元素指令通信的方式-->
+		<!--^符号表示向外层寻找指定名称的指令 ？ 表示即使没有找到也不会报错-->
+		<!--controller是一个构造型函数 在父元素指令添加时候 可以在该函数中添加多个属性和方法 该属性和方法被实例对象继承-->
+		<div class="show">
+			<ts-parent>
+				<div class="tip">
+					{{ptip}}
+				</div>
+				<ts-child>
+						<div class="tip">{{ctip}}</div>
+				</ts-child>
+				<button ng-click="click()">exchange</button>
+			</ts-parent>
+		</div>
+	
 	</body>
+	<script type="text/javascript">
+		
+		var app = angular.module("a8_1",[]);
+		/*为了使用一个名称为ts-hello的新指令 首先调用directive方法进行定义 方法的第一个参数就是新指令的名称*/
+		/*tsHello === ts-hello 二者等价*/
+		app.directive("tsHello",function(){
+			return {
+				/*指出在html中使用的方式 有个 EACM 4种方式 分别代表标签 属性 类别 注释 默认为A*/
+				restrict:"EAC",
+				/*在编译以后生成的HTML标记*/
+				template:"<h3>hello Angular</h3>";
+			}
+		})
+		
+		app = angular.module("a8_2",[])
+		/*调用run方法 该方法自动执行 接受一个执行的函数 函数的功能是调用内置的$templateCache服务*/
+		/*使用put方法添加一个缓存模板*/
+		.run(function($templateCache){
+			$templateCache.put("cache","<h3>cache</h3>")
+		})
+		.directive("tsTplfile",function(){
+			return{
+				restrict:"EAC",
+				templateUrl:"tpl.html",
+				replace:false
+			};
+		})
+		.directive("tsTplscript",function(){
+			return{
+				restrict:"EAC",
+				templdateUrl:"tpl",
+				replace:true
+			};
+		})
+		.directive("tsTplcache",function(){
+			return{
+				restrict:"EAC",
+				templateUrl:"cache",
+				replace:false
+			};
+		})
+		
+		app = angular.module("a8_3",[])
+		.directive("tsTplscript",function(){
+			return {
+				restrict:"EAC",
+				templateUrl:"tpl2",
+				/*transclude属性的作用是为了保留指令元素中原有的内容 使用自定义的指令元素以后 原有的内容将被指令值的模板替换*/
+				transclude:true
+			}
+		});
+		
+		app = angular.module("a8_4",[])
+		.directive("tsTplscript",function(){
+			return {
+				restrict:"EAC",
+				templateUrl:"tpl",
+				replace:true,
+				/*添加link属性用于绑定添加scope iele iattrs参数*/
+				/*iEle餐宿就是指令模板替换后的button元素 直接调用bind各类事件*/
+				link:function(scope,iEle,iAttrs){
+					iEle.bind("click",function(){
+						/*调用scope的apply方法 在执行方法中的函数以后 重新渲染页面视图*/
+						scope.$apply(function(){
+							scope.content="alert";
+						})
+						/*iAttrs参数是指令元素的属性集合 $$element表示与属性相对应的元素集合该集合是一个数组*/
+						iAttrs.$$element[0].disabled=true;
+					})
+				}
+			}
+		})
+		
+		app = angular.module("a8_5",[])
+		.controller("c8_5",function($scope){
+			$scope.tip="flow complie"
+		})
+		/*分别自定义tsA,tsB指令 在执行compile，pre,post函数时候 都添加了console*/
+		/*首先执行compile函数 先执行父元素的compile函数 在执行子类的compile函数 截止执行pre post*/
+		/*执行的顺序说明 结果如下*/
+		/*compile A compile B*/
+		/*compile A pre compile B pre*/
+		/*complie B post compile A post*/
+		.directive("tsA",function(){
+			return{
+				restrict:"EAC",
+				complie:function(tEle,tAttrs,trans){
+					console.log("complie a");
+					return {
+						pre:function(tEle,tAttrs,trans){
+							console.log("complie A pre");
+						}
+						post:function(tEle,tAttrs,trans){
+							console.log("complie A post");
+						}
+					}
+				}
+			}
+		})
+		.directive("tsB",function(){
+			return{
+				restrict:"EAC",
+				complie:function(tEle,tAttrs,trans){
+					console.log("complie B");
+					return {
+						pre:function(tEle,tAttrs,trans){
+							console.log("complie B pre");
+						}
+						post:function(tEle,tAttrs,trans){
+							console.log("complie B post");
+						}
+					}
+				}
+			}
+		});
+		
+		app = angular.module("a8_6",[])
+		/*自定义tsmessage指令 将指令对象的scope属性设置为true表示允许子作用域scope对象 当父类作用域变化 子作用域同步变化 子类并不会传递到父类*/
+		.directive("tsMessage",function(){
+			return {
+				restrict:"EAC",
+				templateUrl:"tpl",
+				transclude:true,
+				scope:true,
+				link:function(scope,iEle,iAttrs){
+						iEle.bind("click",function(){
+							scope.$apply(function(){
+								scope.message="alert value";
+							})
+						})
+				}
+			}
+		})
+		
+		app = angular.module("a8_7",[])
+		.controller("c8_2",function($scope){
+			$scope.reSet = function(){
+				$scope.tip ="name age reset！";
+			}
+		})
+		/*自定义一个tsJson的指令 添加scope属性 将该属性值定义为一个json对象*/
+		.diretive("tsJson",function(){
+			return {
+				restrict:"EAC",
+				templateUrl:"tpl",
+				transclude:true,
+				scope:{
+					/*分别使用三种绑定策略 实现子作用域与父作用域之间的属性和方法互通*/
+					/*使用@绑定 绑定属性值的方式为{{}} 使用=绑定属性值的方式为=*/
+					textName:'@aAttr',
+					textAge:'=bAttr',
+					reSet:'&reset'
+				},
+				link:function(scope,iEle,iAttrs){
+					iEle.bind("click",function(){
+						scope.$apply(function(){
+							scope.reSet();
+							scope.textName="jim";
+							scope.textAge="20";
+						})
+					});
+				}
+			}
+		});
+		
+		app = angular.module("a8_8",[])
+		.directive("tsParent",function(){
+			return{
+				restrict:"EAC",
+				controller:function($scope,$compile,$http){
+					/*添加指令用于子级指令调用*/
+					this.addChild = function(c){
+						$scope.ptip = "today is good";
+						$scope.click=function(){
+							/*作用域互换*/
+							$scope.tmp = $scope.ptip;
+							$scope.ptip=c.ctip;
+							c.ctip = $scope.tmp
+						}
+					}
+				}
+			}
+		})
+		//添加tsChild时候 添加require属性 并设置它的属性值为^?tsParent 表示向外寻找tsParent指令
+		//添加link函数 通过scope对象所属想作用域添加名称ctip的属性 便于在指令元素中通过{{}}绑定显示
+		//通过link函数的第四个参数访问tsparent指令中controller定义的方法 并将指令元素所在的scope对象作为实参传递给
+		//名称为tsparent的指令 从而实现子级访问上级
+		.directive("tsChild",function(){
+			return {
+				restrict:"EAC",
+				require:"^?tsParent",
+				link:function(scope,iEle,iAttrs,ctrl){
+					scope.ctip = "18";
+					ctrl.addChild(scope);
+				}
+			}
+		})
+	</script>
 </html>
