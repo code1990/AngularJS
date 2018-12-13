@@ -2,8 +2,392 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>7.Angular与服务端的交互</title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
+		<!--添加restful APi支持 是一个可选的模块-->
+		<script type="text/javascript" src="../js/angular-1.2.6/angular-resource.min.js" ></script>
 	</head>
 	<body>
+		<!--7.1传统的ajax方式与服务端交互-->
+		<div class="c7_1">
+			<ul id="stuInfo">
+				<li>loading</li>
+			</ul>
+		</div>
+		
+		<!--7.2使用$http快捷方法与服务端交互-->
+		<!--$http封装了XMLHttpRequest对象 接受一个对象作为参数 返回一个promise对象-->
+		<!--该对象包含success +error的2个回调方法-->
+		<!--请求类型 POST GET JSONP DELETE PUT HEAD-->
+		<!--data参数表示返回提 status表示请求返回的参数值 headers是返回的头部信息 config对象获取完整的http配置信息-->
+		<div class="show" ng-controller="c7_2">
+			<div class="show">
+				<div class="show">POST RESULT{{result}}</div>
+				<button ng-click="onclick()">send</button>
+			</div>
+		</div>
+	
+		<!--7.3 使用$http配置对象方式与服务端交互-->
+		<div class="show" ng-controller="c7_3">
+			<div class="show">
+				<input type="text" ng-model="num" />
+				<button ng-click="onclick();">验证奇数偶数</button>
+				<div class="tip">你的输入时{{result}}</div>
+			</div>
+		</div>
+		
+		<!--7.4使用$CacheFacotry服务创建缓存对象 大部分对象以key/value形式存储-->
+		<!--$cacheFactory服务创建一个缓存的key名-->
+		<!--$cacheFactory("test").info() 返回缓存对象的信息-->
+		<!--$cacheFactory.put("x","x"); 添加缓存内容-->
+		<!--同理 get 获取键值对 remove删除指定的键名称的缓存  removeAll删除所有内容 destory销毁重置-->
+		<div class="show" ng-controller="c7_4">
+			<div class="show">
+				<input type="text" ng-model="cname" size="6" />
+				<button ng-click="cset();">set</button>
+				<button ng-click="cshow();">show</button>
+				<button ng-click="cdel();">delete</button>
+				<button class="tip">缓存值{{cvalue}}</button>
+			</div>
+		</div>
+		
+		<!--7.5 $http服务中的缓存 可以配置cache属性为true开启缓存服务 有$cacheFactory创建-->
+		<div class="show" ng-controller="c7_5">
+			<div class="show">
+				<div class="tip">{{result}}</div>
+				<div class="tip">{{cache}}</div>
+			</div>
+		</div>
+		
+		<!--7.6添加自定义的$http服务-->
+		<div class="show" ng-controller="c7_6">
+			<div class="show">
+				<div class="tip">{{result}}</div>
+				<button ng-click="refresh();">refresh</button>
+			</div>
+		</div>
+		
+		<!--7.7$resource对象中方法的使用 功能更加强大 它的核心价值在于支持RESFTful服务器-->
+		<!--$resource服务是一个可选模块-->
+		
+		<div class="show" ng-controller="c7_7">
+			<ul style="margin-bottom: 80px;">
+				<li ng-repeat="item in items">
+					<span>{{item.Code}}</span>
+					<span>{{item.Name}}</span>
+					<span>{{item.Sex}}</span>
+				</li>
+			</ul>
+			<div class="show">
+				key<input type="text" ng-model="key" />
+				<button ng-click="save();">保存</button>
+				<div class="tip">{{result}}</div>
+			</div>
+		</div>
+		
+		<!--7.8在$resource服务中不同自定义请求方法-->
+		<div class="show" ng-controller="c7_8">
+			<div class="show">
+				<div class="tip">
+					{{r0}}
+				</div>
+				<div class="tip">
+					{{r1}}
+				</div>
+				<div class="tip">
+					{{r2}}
+				</div>
+				<button ng-click="click()">start</button>
+			</div>
+		</div>
+		
+		<!--7.9 promise对象的创建与使用 操作ajax异步请求时候 必须添加回调函数 处理成功以后的逻辑-->
+		<!--promise对象是处理异步编程的模式 以一种同步的方式去处理业务流程 采取链式写法更加优雅-->
+		<div class="show">
+			<div class="tip">
+				{{t0}}
+			</div>
+			<div class="tip">
+				{{t1}}
+			</div>
+			<div class="tip">
+				{{t2}}
+			</div>
+			<button ng-click="action(true)">resolve</button>
+			<button ng-click="action(true)">reject</button>
+		</div>
+		
+		<!--7.10 promise对象在http中的使用 可以减少等待时间 优化用户体验-->
+		<div class="show" ng-controller="c7_10">
+			<div class="show">
+				<div class="tip">
+					{{result}}
+				</div>
+			</div>
+		</div>
 	</body>
+	
+	<script type="text/javascript" >
+		(function(){
+			/*定义一个全局的对象 根据不同的浏览器来采取不同的实例化策略*/
+			var xhr = null;
+			if(window.ActiveXObject()){
+				xhr = new ActiveXObject("Microsoft.XMLHTTP");
+			}else{
+				xhr = new XMLHttpRequest();
+			}
+			/*绑定xhr的reaystatechange事件 等于4表示请求成功*/
+			xhr.onreadystatechange=function(){
+				if(xhr.readyState ==4){
+					if(xhr.status ==200){
+						var HTML = "";
+						/*使用eval函数转换为一个对象 遍历该对象*/
+						var data = eval("("+xhr.responseText+")");
+						for(var i =0;i< data.length;i++){
+							HTML +="<li><span>"+data[i].Code+"</span>";
+							HTML +="<span>"+data[i].Name+"</span>";
+							HTML +="<span>"+data[i].Score+"</span></li>";
+						}
+						document.getElementById("stuInfo").innerHTML = HTML;
+					}
+				}
+			}
+			
+			xhr.open("GET","../data/stu.php");
+			xhr.send();
+		});
+		
+		angular.module("a7_2",[])
+		/*为了将客户端的数据以POST方式通过$http服务发送到服务端 需要调用config方法注入$httpProvider服务*/
+		/*调用该服务对象重置发送数据时候的默认函数tansformRequest和属性Content-type的值*/
+		.config(function($httpProvider){
+			$httpProvider.defaults.transformRequest=
+			function(obj){
+				var arrStr =[];
+				for(var p in obj){
+					arrStr.push(encodeURIComponent(p)+"="+encodeURIComponent(obj[p]));
+				}
+				return arrStr.join("&");
+			}
+			/*重置http发送体内容进行转码 并且对于转码后的内容进行序列化操作 便于发送时候的数据传输和服务端的接受 */
+			$httpProvider.defaults.headers.post={
+				/*POST请求必须将请求头信息中的content-type属性值重置*/
+				"Content-Type":
+				"application/x-www-form-urlencoded"
+			}
+		})
+		.controller("c7_2",function($scope,$http){
+			var postData = {name:"X"}
+			$scope.onclick=function(){
+				$http.post("../data/post.php",postData)
+				.success(function(data,status,headers,config){
+					$scope.result = data;
+				})
+			}
+		})
+		
+		angular.module("a7_3",[])
+		.controller("c7_3",function($scope,$http){
+			$scope.num =0;
+			$scope.result = "偶数";
+			//向chk.php文件发送请求 把检测到结果返回到客户端页面中
+			$scope.onclick=function(){
+				$http({
+					method:"GET",
+					url:"../data/chk.php",
+					//param会议key/value形式传递到服务器
+					params:{
+						n:$scope.num
+					}
+				}).success(function(data,status,headers,config){
+					$scope.reuslt = data;
+				});
+			}
+		})
+		
+		angular.module("a7_4",[])
+		/*创建一个名称为cache的服务 该服务返回一个名称为test的缓存对象 用于控制中的注入*/
+		.service("cache".function($cacheFactory){
+			return $cacheFactory("test")
+		}).controller("c7_4",function($scope,cache){
+			$scope.cset=function(){
+				cache.put("mytest",$scope.name);
+			}
+			$scope.cshow=function(){
+				var tcache = cache.get("mytest");
+				$scope.cvalue = tcache?tcache:"null";
+			}
+			$.scope.cdel = function(){
+				cache.remove("mytest");
+			}
+		})
+		
+		angular.module("a7_5",[])
+		/*注入$cacheFactory服务 调用该服务的get方法 获取$http的缓存对象*/
+		.controller("c7_5",function($scope,$http,$cacheFactory){
+			var url = "../data/cache.php";
+			/*自动创建 $http*/
+			var cache = $cacheFactory.get("$http")
+			$http({
+				method:"GET",
+				url:url,
+				cache:true
+			}).success(function(data,status,headers,config){
+				$scope.result = data;
+				var arrResp = cache.get(url);
+				$scope.cache = arrResp[0]+"_"+arrResp[1];
+			});
+		})
+		
+		angular.module("a7_6",[])
+		.service("cache",function($cacheFactory){
+			/*自定义缓存实例 最大容量为3次*/
+			return $cacheFactory("myCache",{capacity:3})
+		})
+		.controller("c7_6",function($scope,$http,cache){
+			var url = "../data/cache.php";
+			$http({
+				method:"GET",
+				url:url,
+				cache:true
+			}).success(function(data,status,headers,config){
+				$scope.result = data;
+				cache.put("C",data);
+			})
+			$scope.refresh=function(){
+				var _c = cache.get("c");
+				$scope.result = (_c)?_c+"refresh error":"132213";
+			}
+		})
+		
+		angular.module("a7_7",['ngResource'])
+		/*调用config配置函数 重置默认POST数据时候的头文件类型*/
+		.config(function($httpProvider),{
+			$httpProvider.defaults.transformRequest=
+			function(obj){
+				var arrStr =[];
+				for(var p in obj){
+					arrStr.push(encodeURIComponent(p)+"-"+encodeURIComponent(obj[p]));
+				}
+				return arrStr.join("&");
+			}
+			$httpProvider.defaults.heaers.post={
+				"Content-Type":"application/x-www-form-urlencoded"
+			}
+		})
+		/*使用resource生成一个名为stus的对象 调用该对象的query方法 返回一个数组*/
+		.controller("c7_7",function($scope,$resource){
+			var stus = $resource("../data/info.php")
+			stus.query({action:"search"},function(resp){
+				$scope.items = resp;
+			})
+			$scope.save=function(){
+				var data={
+					key:$scope.key
+				}
+				stus.save({action:save},data,function(resp){
+					$scope.result = (resp[0]=="1")?"save success":"save error";
+				})
+			}
+		})
+		
+		
+		angular.module("a7_8",['ngResource'])
+		/*调用config函数实现POST数据的正常发送*/
+		.config(function($httpProvider){
+			$httpProvider.defaults.transformRequest=
+			function(obj){
+				var arrStr =[];
+				for(var p in obj){
+					arrStr.push(encodeURIComponent(p)+"-"+encodeURIComponent(obj[p]));
+				}
+				return arrStr.join("&");
+			}
+			
+			$httpProvider.defaults.headers.post={
+				"Content-Type":
+				"application/x-www-form-urlencoded"
+			}
+			/*调用factory方法自定义一个名为custom的服务 返回一个$resource对象 */
+			/*在返回resource对象时候 通过actions参数 自定义一个update方法*/
+		}).factory("custom",["$resource",function($resource){
+			return $resource(url,{act:"search"},
+			{update:{
+				method:"POST"
+				params:{
+					update:true
+				},
+				isArray:false
+			}
+				
+		});
+		}]).controller("c7_8",function($scope,custom){
+			$scope.click=function(){
+				/*通过custom的resource来执行get方法*/
+				custom.get({id:"1010"},function(resp0){
+					$scope.ROTATION_COUNTERCLOCKWISE=(resp0[0]=="1")?
+					"search success":"search false";
+					resp0.key="1011";
+					resp0.$update({act:"update"},function(reps1){
+						resp1.r1=(reps1[0]=="1")?
+						"search success":"search false";
+						resp1.key="1012";
+						resp1.$save({act:"save"},function(reps2){
+							$scope.r2=(reps2[0]=="1")?
+							"search success":"search false";
+						})
+					});
+				});
+			}
+		})
+		
+		angular.module("a7_9",[])
+		/*调用q服务*/
+		.controller("c7_9",function($scope,$q){
+			var defer = $q.defer();
+			$scope.action=function(type){
+				defer.nofity(0);
+				/*当数组中的defer对象全部都解决时候 才会返回一个promise对象 否则调用reject方法时候 调用reject方法*/
+				type?defer.resolve(1):defer.reject(1);
+			}
+			var promise = defer.promise;
+			promise.then(function(n){
+				n++;
+				$scope.t1="ok"+n;
+			},function(n){
+				n++;
+				$scope.t1="error "+n;
+			},function(n){
+				n++;
+				$scope.t0="ing"+n;
+			})
+		});
+		
+		
+		/**/
+		angular.module("a7_10",[])
+		/*注入async的服务*/
+		.factory("async",function($q,$http){
+			/*调用q服务创建一个defer的延期对象*/
+			var defer = $q.defer();
+			$http.get("../data/async.php")
+			.success(function(data){
+				/*请求成功调用resolve方法 返回的数据作为参数进行传递*/
+				defer.resolve(data);
+			}).error(function(reason){
+				/*请求失败 调用reject方法返回异常信息*/
+				defer.reject(data);
+			})
+			/*返回一个实例化的promise对象*/
+			return defer.promise;
+			/*调用then方法添加对应的回调函数 http+promise对象可以提高代码的可读性 避免多重嵌套回调函数*/
+		}).controller("c7_10",function($scope,async){
+			var promise = async;
+			promise.then(function(resp){
+				$scope.result = "success"+resp;
+			},function(n){
+				$scope.reuslt="error"+resp;
+			})
+		});
+	</script>
 </html>
