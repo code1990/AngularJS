@@ -1,9 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="progress">
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>综合案例开发11.1基于Angularjs使用canvas绘制图形进度条</title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js"></script>
+		<style type="text/css">
+			body{
+				font-size: 13px;
+			}
+			a:link{
+				text-decoration: none;
+			}
+			a:visited{
+				text-decoration: none;
+			}
+			#main{
+				margin: 0 auto;
+				width: 200px;
+				text-align: center;
+			}
+		</style>
 	</head>
 	<body>
+		<div id="main" ng-controller="ctrl_progress">
+			<div onload-progress progress-model="ProgressValue"></div>
+			<button ng-click="start()">begin</button>
+		</div>
+	
+		<!--开发一个抽奖应用-->
+		<div ng-controller="ctrl_lottery" id="lottery">
+			<div id="step1">
+				<button ng-click="start();">start</button>
+			</div>
+			<div id="step2" class="hide"><br />
+				<div ng-repeat="item in items" id="{{item.id}}" class="item" ng-class="{'active':item.status}">
+					{{item.name}}
+				</div>
+			</div>
+			<div id＝"step3" class＝"hide top">
+				<a href＝"javascript:void(0);" ng-click="reset()" class＝"reset">
+					<img src＝"images/reset.png"／>重新开始
+				</a>
+				<a href＝"javascript:void(0)" 	ng-click＝"edit()" class＝"edit">
+				<imgsrc＝"images/edit.png"／>修改奖品
+				</a>
+				<button class＝"active">{{result}}</button>
+			</div>
+			<div id＝"step4" class＝"hide top">
+				<a href＝"javascript:void(0)"
+					ng-click＝"return()"class＝"reset">
+					<img src＝"images/return.png"／>返回
+				</a>
+				<form ng-submit＝"add()">
+					<input type＝"text"ng-model＝"name" required placeholder＝"名称"/>
+				    <input class＝"btn"type＝"submit"value＝"添加"/>
+				</form>
+				<ul>
+				<li ng-repeat＝"iteminitems">
+					<span>{{item.id))</span>
+				<span class＝"span"＞{{item.name}}</span>
+				<a href＝"javascript:void(0)"	ng-click＝"del(item.id)">删除</a>
+				</li>
+			</div>
+		</div>	
 	</body>
+	<script type="text/javascript">
+		angular.module("angular.directives-load-progress",[])
+		/*自定义指令代码  canvas初始化的很多代码省去*/
+		.directive("loadProgress",[function(){
+			return{
+				replace:true,
+				compile:function(tplele,tplattr,transclude){
+					if(tplele.length === 1){
+						var node = tplele[0];
+						//初始化canvas元素并且初始化相关属性值
+						var width = node.getAttribute("progress-width") ||"200";
+						var height = node.getAttribute("progress-width") ||"200";
+						var canvas = document.createElement("canvas");
+						canvas.setAttribute("width",width);
+						canvas.setAttribute("height",height);
+						canvas.setAttribute("progress-model",
+							node.getAttribute("progress-model"));
+						node.parentNode.replaceChild(canvas,node);
+						var ocwidth = node.getAttribute("progress-outer-cirle-width")||"20";
+						var icwidth = node.getAttribute("progress-inner-cirle-width")||"5";
+						//设置绘制圆的各项配置属性值 包括半径 填充色
+						
+						//按照设置的属性值重绘
+						
+					}
+				}
+			}
+		}]);
+		
+		angular.module("angular.directives-load-progress",[])
+		.controller("ctrl_progress",function($scope,$interval){
+			$scope.ProgressValue = {
+				label:0,
+				percentage:0.00
+			}
+			$scope.$watch("ProgressValue",function(newValue){
+				newValue.percentage= newValue.label/100;
+			},true);
+			$scope.start = function(t){
+				var i =0;
+				var n = $interval(function(){
+					i++;
+					$scope.ProgressValue.label=i;
+					if(i ==100){
+						$interval.cancel(n);
+					}
+				},500);
+			}
+		})
+		
+		angular.module("lottery",[])
+		.controller("ctrl_lottery",["$scope","$timeout",
+		function($scope,$timeout){
+			function($scope,$timeout){
+				$scope.itmes = [
+					{id:1,name:"xx",status:0}
+				];
+				$scope.result = "xx";
+				$scope.$$=function(id){
+					return document.getELementById(id);
+				}
+				$scope.showhide=function(pre,nex){
+					pre "step"+pre;
+					nex ="step"+nex;
+					$scope.$$(pre).style.display="none";
+					$scope.$$(nex).style.display="block";
+				}
+				//开始抽奖的绑定方法
+				$scope.start=function(){
+					$scope.showhide(1,2);
+					var circle = 5;
+					var selkey = Math.floor(Math.random()*$scope.items.length);
+					var next = function(key){
+						$scope.items[key].status=true;
+						if(key -1 >0){
+							$scope.items[key-1].status=false;
+						}
+						if(key==0){
+							$scope.items[$scope.items.length-1].status=false;
+						}
+						var timer= $timeout(function(){
+							if(circle <=0 && selkey ==key){
+								$scope.showhide(2,3);
+								$scope.result = $scope.items[key].name;
+								return;
+							}
+							if($scope.items.length==key+1){
+								circle--;
+							}
+							if($scope.items[key+1]){
+								next(key+1)
+							}else{
+								next(0)
+							}
+						},100);
+					}
+					next(0);
+				}
+				//显示奖品绑定的方法
+				$scope.reset=function(){
+					$scope.showhide(3,1);
+				}
+				$scope.edit=function(){
+					$scope.showhide($scope,4);
+				}
+				//修改奖品绑定的方法
+				$scope.add=function(){
+					var last_id = lastid();
+					$scope.items.push({id:last_id,name:$scope.name,status:0})
+				}
+				$scope.del = function(id){
+					angular.forEach($scope.items,function(value,key){
+						if(id == value.id){
+							$scope.items.splice(key,1);
+						}
+					})
+				}
+				$scope.return=function(){
+					$scope.showhide(4,3);
+				}
+				//内部函数 用于获取最后一项数据的id号值
+				function lastid(){
+					var id  =0;
+					angular.forEach($scope.items,function(value,key){
+						if(id <value.id){
+							id = value.id;
+						}
+					});
+					return ++id;
+				}
+			}
+		}])
+	</script>
+
 </html>
