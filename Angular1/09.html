@@ -2,8 +2,244 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>使用$location 用于页面刷新和跳转到指定的URL</title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js" ></script>
 	</head>
 	<body>
+		<!--9.1 使用$location对象的只读方法-->
+		<!--$location对象的方法分为2类 只读方法 读写方法-->
+		<!--只读方法 absUrl protocol port host 完整路径 协议 端口 主机-->
+		<!--读写方法 url hash search path -->
+		<!--不带参数 返回URL#后的内容 URL的hash片段 返回URL的查询字符串 当前的路径-->
+		<!--带参数 则修改URL#后的内容 返回一个修改的location对象 -->
+		<!--带参数 则修改URL的hash片段 返回一个修改的location对象 -->
+		<!--带参数 则修改URL的查询字符串 返回一个修改的location对象 -->
+		<!--带参数 则修改当前页面路径 返回一个修改的location对象 -->
+		<div class="show" ng-controller="c9_1">
+			<div>绝对路径：{{absUrl}}</div>
+			<div>协议：{{protocol}}</div>
+			<div>主机：{{host}}</div>
+			<div>端口：{{port}}</div>
+		</div>
+		
+		<!--9.2 $location的读写方法 -->
+		<div class="show" ng-controller="c9_2">
+			<div>页面路径{{url}} </div>
+			<div>hash片段{{hash}} </div>
+			<div>查询字符串{{search}} </div>
+			<div>页面路径{{path}} </div>
+			<button ng-click="click_a()">change</button>
+		</div>
+		
+		<!--9.3 $location对象的事件-->
+		<!--当修改$location的URL地址时候 会触发多个$location对象的内置事件 在修改URL地址前 
+		 将触发$locationChangeStart 该事件可以被preventDefault方法阻止 
+		 URL地址修改成功 触发$locationChangeSuccess事件 绑定这些事件 检测用户的登录和授权状态-->
+		<div class="show" ng-controller="c9_3">
+			<div>当前URL{{current}}</div>
+			<div>上一页URL{{previous}}</div>
+		</div>
+		<!--9.4 捕获$locationChangeSuccess事件 
+		当$locationChangeSuccess事件触发 一定触发$locationChangeStart事件 反之不一定-->
+		<div class="show" ng-controller="c9_4">
+			<div>当前状态1{{tip_a}}</div>
+			<div>current{{current}}</div>
+			<hr />
+			<div>当前状态2{{tip_b}}</div>
+			<div>previous{{previous}}</div>
+		</div>
+		<!--9.5 路由模式之一标签模式下获取页面url的内容-->
+		<!--把路由的模式设置为标签模式 将模式标识符定义为!!-->
+		<div class="show" ng-controller="c9_5">
+			<div>search{{search}}</div>
+			<div>path{{path}}</div>
+		</div>
+		<!--9.6路由模式之一Html5模式-->
+		<div class="show" ng-controller="c9_6">
+			<div>{{absUrl}}</div>
+			<div>{{hash}}</div>
+		</div>
+		<!--9.7 2种模式的对比 -->
+		<!--2种模式都是用于控制浏览器中的url地址的格式 控制是自动切换自动进行-->
+		<!--hashBang模式 是默认模式 在浏览器显示url格式 链接不重写 不需要服务端支持  HTML5模式相反-->
+		<div class="show" ng-controller="c9_7">
+			<div class="title">
+				<input type="radio" name="type" checked="checked" ng-click="rdo_click(0)" />HashBang模式
+				<input type="radio" name="type" ng-click="rdo_click(1)" />HTML5模式
+			</div>
+			<div id="hashbang" ng-class="cls_a" ng-controller="c9_5_hashbang">
+				<div ts-brow-bar bs="hashbang" class="brow"></div>
+				<div>hash{{$location.hash()}}</div>
+				<div>search{{$location.search()}}</div>
+				<div>path{{$location.path()}}</div>
+				<a href="http://www.baidu.com/a/b/c?a=b">/a/c?a=b</a>
+				<a href="http://www.baidu.com/a/b/c?flag#hash">/b/c?flag#hash</a>
+			</div>
+			<div id="html5" ng-class="cls_b" ng-controller="c9_5_html5">
+				<div ts-brow-bar bs="html5" class="brow"></div>
+				<div>hash{{$location.hash()}}</div>
+				<div>search{{$location.search()}}</div>
+				<div>path{{$location.path()}}</div>
+				<a href="http://www.baidu.com/a/b/c?a=b">/a/c?a=b</a>
+				<a href="http://www.baidu.com/a/b/c?flag#hash">/b/c?flag#hash</a>
+			</div>
+		</div>
+		<!--9.8 路由对象方法的双向绑定-->
+		<div class="show" ng-controller="c9_8">
+			<div><input id="text1" type="text" ng-model="locationPath"/></div>
+			<div>{{locationPath}}</div>
+		</div>
 	</body>
+	<script type="text/javascript" >
+		angular.module("a9_1",[]).controller("c9_1",function($scope,$location){
+			$scope.absUrl = $location.absUrl();
+			$scope.protocol = $location.protocol();
+			$scope.host = $location.host();
+			$scope.port = $location.port();
+		});
+		
+		/*location对象的修改属性类似于jQuery方法*/
+		/*如果要获取不修改对象属性 直接调用原始方法 如果获取修改后的对象的 属性 直接把修改的内容添加到()中 */
+		angular.module("a9_2",[]).controller("c9_2",function($scope,$location){
+			$scope.url = $location.url();
+			$scope.hash = $location.hash();
+			$scope.search = $location.search();
+			$scope.path = $scope.path();
+			$scope.click_a = function(){
+				$location.search(c:"3",d:"4");
+			}
+		});
+		
+		/*rootScope对象面对的是整个页面的各个控制器 scope对象只是针对某一个控制器 绑定对象事件调用$on()*/
+		var app1 = angular.module("a9_3",[]).controller("c9_3",function($rootScope,$window,$scope,$location){
+			/*evt 表示触发原始事件对象 current当前URL地址 previous表示上一级URL地址  首次加载undefined*/
+			$rootScope.$on("$locationChangeStart",function(evt,current,previous){
+				$scope.current = current;
+				$scope.previous = previous;
+			})
+		})
+		
+		var app2 = angular.module("a9_4",[]).controller("c9_4",
+		function($rootScope,$window,$scope,$location,$log){
+			/*evt 表示触发原始事件对象 current当前URL地址 previous表示上一级URL地址  首次加载undefined*/
+			$rootScope.$on("$locationChangeStart",function(evt,current,previous){
+				$scope.tip_a = "url changed";
+				var yn = $window.confirm("are you sure");
+				if(yn){
+					$location.path("/change");
+					return;
+				}
+				evt.preventDefault();//阻止事件  取消url改变
+				$scope.tip_b = "用户取消了URL的改变";
+				$scope.current = current;
+				$scope.previous= previous;
+				return;
+			});
+			$rootScope.$on("locationChangeSuccess",function(evt,current,previous){
+				$scope.tip_b = "url changed";
+				$scope.current = current;
+				$scope.previous = previous;
+			});
+		});
+		
+		/*把location对象的路由模式设置为标签模式*/
+		var app5 = angular.module("a9_5",[])
+		.config(function($locationProvider){
+			$locationProvider.html5Mode(false);//适配不支持html5的浏览器
+			$locationProvider.hashPrefix("!!");//!表示是标签模式 !表示可以通过hashPrefix属性重置
+		})
+		.controller("c9_5",function($scope,$location){
+			$scope.search = $location.search();
+			$scope.path = $location.path();
+		});
+		
+		var app6 = angular.module("a9_6",[])
+		.config(function($locationProvider){
+			$locationProvider.html5Mode(true);//开启html5的路由模式
+			$locationProvider.hashPrefix("!!!");//
+		})
+		.controller("a9_6",function($scope,$location){
+			$scope.absUrl = $location.absUrl();//
+			$scope.hash = $location.hash();//
+		});
+		
+		angular.module("a9_7",[]).controller("c9_7",function($scope){
+			$scope.cls_a = "show";
+			$scope.cls_b = "hide";
+			$scope.rdo_click = function(v){
+				if(!v){
+					$scope.cls_a = "show";
+					$scope.cls_b = "hide";
+				}else{
+					$scope.cls_a = "hide";
+					$scope.cls_b = "show";
+				}
+			}
+		});
+		
+		function c9_5_hashbang($scope,$location){
+			$scope.$location = $location;
+		}
+		function c9_5_html5($scope,$location){
+			$scope.$location=$location;
+		}
+		/*自定义brow函数 用于设置浏览器的基础路径和初始化路径*/
+		function Brow(initUrl,baseHref){
+			this.onUrlChange = function(fn){
+				this.urlChange = fn;
+			}
+			this.url = function(){
+				return initUrl;
+			}
+			this.baseHref = function(){
+				return baseHref;
+			}
+		}
+		
+		/*定义一个brows对象该对象中分别添加一个HTML5和hashbang的键*/
+		var Brows = {
+			html5:new Brow("http://www.baidu.com/a/c?a=b#hash","/a/index.html");
+			hashbang:new Brow("http://www.baidu.com/a/c?a=b#hash","/a/index.html");
+		};
+		
+		/*传入name 自定义不同的浏览器模式下浏览器指令*/
+		function createBrow(name){
+			var root = angular.element(document.getElementById(name));
+			angular.bootstrap(root,[
+				function($complieProvider,$locationProvider,$provide){
+					$locationProvider.html5Mode(true).hashPrefix("!");
+					$provide.value("$browser",Brows[name]);
+					$provide.value("$document",root);
+					$provide.value("$sniffer",{
+						history:name=="html5"
+					});
+					$complieProvider.directive("tsBrowBar",function(){
+						return function(scope,elm,atts){
+							var bs = Brows[attrs.bs];
+							var input = angular.element("<input type='text'/>").val(bs.url());
+							bs.url = function(url){
+								return input.val(url);
+							};
+							elm.append(input);
+						};
+					});
+				}
+			]);
+		}
+		//分别调用createBrow函数 传入name值 自定义不同的路由模式的浏览器指令
+		createBrow("html5");
+		createBrow("hashbang");
+		
+		/*为了实现路由的双向绑定 在控制层添加了2个watch方法 一个名称为locationPath 重置地址栏绝对url*/
+		/*一个名称为location.path用于将获取的路径赋值给名称的locationPath属性 locationPath与元素的ng-model属性绑定后 用户在文本框输入任意字符 实现双向绑定*/
+		var app9 = angular.module("a9_8",["ngRoute"])
+		    .controller("c9_8",function($scope,$location){
+		    	$scope.$watch("locationPath",function(path){
+		    		$location.path(path);
+		    	});
+		    	$scope.$watch("$location.path()",function(path){
+		    		$scope.locationPath  = path;
+		    	})
+		    })
+	</script>
 </html>
