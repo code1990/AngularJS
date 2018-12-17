@@ -1,9 +1,267 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>使用angular开发的注意事项和最佳实践</title>
+		<script type="text/javascript" src="../js/angular-1.2.6/angular.min.js"></script>
 	</head>
+
 	<body>
+		<!--
+			          使用了Angular框架，建议就不要再调用jQuery框架，避免冲突。
+				Angular内含jQLite一一它是jQuery的一个子集，许多简单功能、方法以及页面元素操作、事件绑定功能
+				都可以直接通过该框架来实现，
+				Angular中的$http服务则完全可以取代jQuery框架中的$.ajax的相关函数。
+		-->
+		<!--10.1调用element方法控制DOM元素-->
+		<div class="show" ng-controller="c10_1" id="control">
+			<button ng-click="add()">add</button>
+			<button ng-click="delete()">delete</button>
+		</div>
+		<!--10.2处理setTimeOut改变属性的无效-->
+		<div class="show" ng-controller="c10_2">
+			<p>{{tip}}</p>
+		</div>
+		<!--10.3解决{{}}绑定元素时候的闪烁问题-->
+		<!--
+			在Angular内部,可以向元素中添加"ng-cloak"属性来实现元素隐藏的效果。
+			如果是绑定纯文字内容，建议使用“ng-bind”方式，而非双大括号方式来实现数据的绑定
+		-->
+		<div class="show" ng-controller="c10_3">
+			<!--ng-cloak 是一个angular指令 angular将带属性的元素进行隐藏 display设置为none-->
+			<div id="template" ng-cloak>{{message}}</div>
+		</div>
+		<!--10.4使用ng-repeat的注意事项 
+			遍历数组的过程中如果没有使用过滤器index作为索引是有效的 
+		       如果添加了过滤器 索引号无效 调用的是item对象-->
+		<div class="show" ng-controller="c10_4">
+			<ul ng-controller="c10_4">
+				<li>
+				<span>index</span>
+				<span>name</span>
+				<span>score</span>
+				<span>action</span>	
+				</li>
+				<!--带有过滤器 不能使用$index来定位对象 使用item-->
+				<li ng-repeat="item in items | filter : fscore">
+					<span>{{item.id}}</span>
+					<span>{{item.name}}</span>
+					<span>{{item.score}}</span>
+					<span ng-click="remove(item,$index)">delete</span>
+				</li>
+			</ul>
+		</div>
+		
+		<!--10.5使用track by排序ng-repeat中的数据-->
+		<div class="show" ng-controller="c10_5">
+			<button ng-click="update()">update</button>
+			<!--不使用track by表达式排序 update时候 缺少DOM元素唯一性 每次都会重复生成-->
+			<!--绑定数据源时候 调用track by表达式指定排序的属性名id 是DOM元素唯一标识-->
+			<ul ng-repeat="user in users track by user.id">
+				<li>
+					<span>{{user.id}}</span>
+					<span>{{user.name}}</span>
+				</li>
+			</ul>
+		</div>
+		
+		<!--10.6正确理解ng-repeat中scope对象的继承关系-->
+		<!--子元素各自创建scope作用域 父级别作用域是相同的 是$scope对象 
+		调用angular.element(dom).scope方法可以获取 某个对象的作用域-->
+		<div class="show" ng-controller="c10_6">
+			<input type="button" value="btn1" ng-click="change1()" />
+			<input type="button" value="btn2" ng-click="change2()" />
+			<input type="button" value="btn3" ng-click="change3()" />
+			<ul ng-repeat="user in users track by user.id">
+				<li>
+					<span id="span{{user.id}}">{{user.id}}</span>
+					<span id="span{{user.id}}">{{user.name}}</span>
+					<span id="span{{user.id}}">{{user.score}}</span>
+				</li>
+			</ul>
+		</div>
+		<!--10.7解决单机按钮的冒泡事件 阻止冒泡事件的传播-->
+		<div class="show" ng-controller="c10_7 as o">
+			单机事件 阻止冒泡现象
+			<div ng-click="o.click('parent',$event)">
+				<input type="checkbox" ng-click="o.change($event)" 
+					ng-model="o.stopPropagation" />stop prop
+				<button type="button" ng-click="o.click('button',$event)">click</button>
+			</div>
+		</div>
+		<!--10.8释放多余的-$watch函数 如果$watch函数过多 数据加载慢 性能地下 必要时候释放多余的$watch函数-->
+		<div class="show" ng-controller="c10_8">
+			<input type="text" ng-model="content" />
+			<div>{{num}}change</div>
+			<button ng-click="stopWatch();">stop listen</button>
+		</div>
+		<!--10.9 处理ng-if中ng-model值无效的问题-->
+		<!--ng-if 指令的功能与ng-show类似 控制元素的显示与隐藏-->
+		<!--ng-if 会移除dom元素 ng-show会设置display属性为none block-->
+		<div class="show" ng-controller="c10_9">
+			<div>
+				a{{a}}<br />b{{b}}
+			</div>
+			<div >
+				<input type="checkbox" ng-model="a" />
+			</div>
+			<div ng-if="!a">
+				ngif <input type="checkbox" ng-model="$parent.b" />
+			</div>
+		</div>
+		
 	</body>
+	<script type="text/javascript">
+		angular.module("a10_1",[])
+		/*注入$compile服务 注入后者的目的是为了初始化有关的依赖 并且对jQuery对象生成的template模板进行编译 以便于append*/
+		.controller("c10_1",function($scope,$compile){
+			$scope.hello = "Hello Angular";
+			$scope.log=function(){
+				console.log("add");
+			}
+			var html = "<div ng-click='log()'>{{hello}}</div>";
+			var template = angular.element(html);
+			var newHtml = $compile(template)($scope);
+			$scope.add=function(){
+				/*调用element方法可以非常方便动态创建元素 并且在创建过程中可以为元素绑定时间*/
+				angular.element(document.getElementById("control")).append(newHtml);
+			}
+			$scope.del = function(){
+				if(newHtml){
+					newHtml.remove();
+				}
+			}
+		})
+		
+		angular.module("a10_2",[])
+		/*$timeout是angular内部的一个定时器方法 使用必须先注入timeout服务*/
+		/*只有调用apply方法 才能调用与setTimeout相同功能的timeout方法*/
+		.controller("c10_2",function($scope,$timeout){
+			$scope.tip = "Hello Angular";
+			//使用setTimeOut的正确写法 一
+			setTimeout(function(){
+				$scope.$apply(function(){
+					$scope.tip="Angular world";
+				});
+			},1000);
+			
+			//使用setTimeOut的正确写法 2
+			$timeout(function(){
+				$scope.tip="Angular world";
+			},1000)
+		})
+		
+		angular.module("a10_3",[])
+		.controller("c10_3",function($scope){
+			$scope.message = "Hello Angular";
+		})
+		
+		angular.module("a10_4",[])
+		.controller("c10_4",function($scope){
+			$scope.items = getStu();
+			/*fscore过滤器 分数大于60分*/
+			$scope.fscore = function(e){
+				return e.score > 60;
+			}
+			$scope.remove=function(item,index){
+				console.log(item);
+				var item2 = $scole.items[index];
+				console.log(item2);
+			}
+			
+		})
+		
+		function getStu(){
+			return [
+				{id:100,name:"xx",score:10}
+			];
+		}
+		
+		
+		angular.module("a10_5",[])
+		.controller("a10_5",function($scope){
+			var users = [
+				{id:100,name:"xx",score:10}
+			];
+			$scope.users = users;
+			console.log($scope.users);
+			$scope.update = function(){
+				//从服务器中获取数据
+				var result = [
+					{id:100,name:"xx",score:10}
+				];
+				$scope.users = result;
+				console.log($scope.users);
+			}
+		});
+		
+		angular.module("a10_6",[])
+		.controller("a10_6",function($scope){
+			$scope.users = [{
+				id:100,name:"X",score:10
+			}];
+			/*按钮1 change1 调用element().scope方法获取不同id元素的scope作用域 初始化彼此独立 false*/
+			$scope.change1=function(){
+				var scope1 = angular.element(dodocument.getElementById("span1010")).scope();
+				var scope2 = angular.element(dodocument.getElementById("span1020")).scope();
+				console.log(scope1==scope2);
+			}
+			/*按钮2 change2 父级别作用域在控制器创建注入$scope对象 所以true*/
+			$scope.change2=function(){
+				var scope = angular.element(dodocument.getElementById("span1020")).scope();
+				console.log(scope.$parent==$scope);
+			}
+			/*$parent方法可以访问到父级别作用域 通过父级别作用域重置绑定的数据*/
+			$scope.change3=function(){
+				var scope = angular.element(dodocument.getElementById("span1030")).scope();
+				scope.$parent.users=[{
+					id:100,name:"x",score:10
+				}]
+			}
+			
+		});
+		
+		
+		angular.module("a10_7",[])
+		.controller("a10_7",function($scope){
+			var obj = this;
+			/*$event常量返回当前触发事件的对象元素 可以调用返回的常量的stopPropagation阻止冒泡*/
+			obj.click = function(name,$event){
+				console.log(name+"click");
+				if(obj.stopPropagation){
+					$event.stopPropagation();
+				}
+			};
+			obj.change = function($event){
+				$event.stopPropagation();
+			}
+			return obj;
+		});
+		
+		angular.module("a10_8",[])
+		.controller("a10_8",function($scope){
+			$scope.num = 0;
+			$scope.stopWatch= function(){
+				/*返回一个$watch的绑定的unbind函数 最终实现停止监控*/
+				contentWatch();
+			}
+			/*自动执行scope方法*/
+			var contentWatch = $scope.$watch("content",function(newVal,oldVal){
+				/*首次执行 newVal,oldVal分别为undefined 所以推出监控*/
+				if(newVal === odlVal){
+					return;
+				}
+				$scope.num++;
+			})
+		});
+		
+		
+		angular.module("a10_9",[])
+		.controller("c10_9",function($scope){
+			$scope.a = false;
+			$scope.b = false;
+		})
+	</script>
+
 </html>
