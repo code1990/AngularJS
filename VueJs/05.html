@@ -19,7 +19,7 @@
 </p>
 <hr>
 <p>v-if v-else-if v-else JavaScript 的条件语句 else else if 类似，</p>
-<p>Vue 渲染元素时，出于效率考虑，会尽可能地复用已有的元素而非重新渲染</p>
+<p></p>
 <hr>
 <p>v-show 的用法与 v-if 基本 致，只不过 -show 是改变元素的 css 属性 display 。当 v-show
     达式的值为 false 时， 元素会隐藏，查看 DOM 结构会看到元素上加载了内联样式 display none;</p>
@@ -44,6 +44,8 @@
 <hr>
 
 <p>Vue 提供了 个特殊变量$event ，用于访问原生 DOM 事件，</p>
+
+<!--.+修饰符 -->
 <!--阻止单击事件冒泡-->
 <a @click.stop="handle " ></a>
 <!--提交事件不再重载页面 -->
@@ -63,8 +65,8 @@
 <!--<input @keyup.13＝"submit;"/>-->
 章内置指令
 也可以自己配置具体按键：
-Vue.config .keyCodes .fl = 112;
-//全局定义后,就可以使用自 keyup. fl
+Vue.config.keyCodes.fl = 112;
+//全局定义后,就可以使用自 keyup.fl
 除了具体的某个 keyCode 外, Vue 还提供了 些快捷名称,以下是全部的别名：
 .enter
 .tab
@@ -80,13 +82,134 @@ Vue.config .keyCodes .fl = 112;
 .alt
 .shift
 .meta (Mac 下是 Command 键, Windows 下是窗口键）
-<div id="app">
+<!-- Shift + S -->
+<input @keyup.shift.83=”handleSave ”>
+<!-- Ctrl + Click -->
+<div @click.ctrl=”doSomething”>Do something</div>
 
+
+<div id="app" v-cloak>
+    <!--v-cloak当网速较慢、在页面上会显示｛ { message } ｝的字样-->
+{{message}}
+    <!--v-once首次渲染后，不再随数据的变化重新渲染，将被视为静态内容，-->
+    <span v-once>{{message}}</span>
+
+
+    <p v-if="status===1">when status=1 then show this line</p>
+    <p v-else-if="status===2">when status=2 then show this line</p>
+    <p v-else>else show this line</p>
+
+    如果 次判断的是多个元素，可以在 Vue扣内置的＜template>
+    元素上使用条件指令，最终渲染的结果不会包含该元素，
+    <template v-if="status===1">
+        <p>this is text</p>
+    </template>
+
+    Vue 渲染元素时，出于效率考虑，会尽可能地复用已有的元素而非重新渲染
+    <template v-if="type==='name'">
+        <label>name:</label>
+        <input placeholder="name">
+    </template>
+    <template v-else>
+        <label>email</label>
+        <input placeholder="email">
+    </template>
+    <button @click="handleToggleClick">changeType</button>
+
+    v-show 的用法与 v-if 基本 致，只不过 v-show 是改变元素的 css 属性 display
+    <p v-show="status===1">when status=1 show</p>
+    过 v-if 才是真正的条件渲染 适当地销毁或重建元素
+
+    v-show 只是简单的 css 属性切换，无论条件真与否，都会被编译。
+
+    <ul>
+        <li v-for="book in books">{{book.name}}</li>
+        <li v-for="(book,index) in books">{{index}}-{{book.name}}</li>
+    </ul>
+
+    <ul>
+        <template v-for="book in books">
+            <li>name:{{book.name}}</li>
+        </template>
+    </ul>
+
+    <span v-for="value in user"></span>
+
+    遍历对象属性时，有两个可选参数，分别是键名和索引：
+    <ul>
+        <li v-for="(value,key,index) in user">
+            {{index}}-{{key}}:{{value}}
+        </li>
+    </ul>
+
+    v-for 还可以迭代整数
+    <span v-for="n in 10">{{n}}</span>
+
+    push()pop()shift()unshift()splice()sort()reverse()
+    上面的方法会改变原始数组
+    filter() concat() slice()
+    上面的方法不会改变原始数组
+
+    <template v-for="book in filterBooks">
+        <li>{{book.name}}</li>
+    </template>
+
+
+    方法与事件
+    click Number{{counter}}
+    <button @click="handleAdd()">+1</button>
+    <button @click="handleAdd(10)">+10</button>
+
+    Vue 提供了 个特殊变量$event ，用于访问原生 DOM 事件
+    <a href="http://www.baidu.com" @click="handleClick('forbidden',$event)">open url</a>
 </div>
 </body>
 <script type="text/javascript">
 <!---->
+var app = new Vue({
+    el:"#app",
+    data:{
+        message:"this is text",
+        status:1,
+        type:'name',
+        books:[
+            {name:"java",name:"2"}
+        ],
+        user:{
+            name:"jim",
+            age:12
+        }
 
+    },
+    methods:{
+        handleToggleClick:function () {
+            this.type = this.type ==='name'?'mail':'name';
+        }
+    },
+    computed:{
+        // 过滤与排序
+        filterBooks:function () {
+            return this.books.name.match(/java/);
+        },
+        sortedBooks:function () {
+            return this.books.sort(function (a,b) {
+                return a.name.length<b.name.length;
+            })
+        },
+        handleAdd:function (count) {
+            count = count ||1;
+            this.count += count;
+        },
+        handleClick:function(message,event){
+            event.preventDefault();//阻止默认事件
+            window.alert(message)
+        }
+    }
+});
+/*只显示包含的java的 其他的过滤掉*/
+app.books.filter(function (item) {
+    return item.name.match(/java/)
+})
 </script>
 
 </html>
