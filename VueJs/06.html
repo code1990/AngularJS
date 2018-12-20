@@ -3,19 +3,149 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>表单与 v-model</title>
 		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
 	</head>
 
 	<body>
-		<div id="app">
+	表单类控件承载了网页数据的录入与交互
+	Vue 提供了 v-model 指令，用于在表单类元素上双向绑定数据，
+	如果希望总是实时
+	更新，可以用＠input 来替代 v-model 事实上， v-model 也是一个特殊的语法糖
 
-		</div>
+	单选按钮在单独使用时，不需要 v-model,直接使用 v-bind 绑定布尔值
+	复选框单独使用时，也是用 v-model绑定一个布尔值
+	选择列表就是下拉选择器 用 v-for 动态输出， value text 也是用 v-bind 来动态输出的
+
+	v-model 绑定的值是个静态字符串或布尔值
+	动态数据 这时可以用 v-bind 来实现。
+
+	使用修饰符 .lazy 会转变为在 change 事件中同步，
+	使用修饰符.number 可以将输入转换为 Number 类型
+	修饰符 .trim 可以自动过滤输入的首尾空格
+
+
+	< id="app">
+		<input type="text" v-model="message" placeholder="enter">
+		<p>content{{message}}</p>
+
+		<textarea v-model="text" placeholder="enter">
+		</textarea>
+		<p>content</p>
+		<p style="white-space: pre">{{text}}</p>
+
+		<input type="radio" :checked="picked1" >
+		<label>单选按钮</label>
+
+		如果是组合使用来实现互斥选择 效果，就需要 v-model 配合 value 来使用
+		<input type="radio" v-model="picked" value="html" id="html">
+		<label for="html">HTML</label>
+		<br>
+		<input type="radio" v-model="picked" value="js" id="js">
+		<label for="js">JS</label>
+		<br>
+		<input type="radio" v-model="picked" value="css" id="css">
+		<label for="css">CSS</label>
+		<br>
+		<p>选择的项是{{picked}}</p>
+
+
+		<input type="checkbox" v-model="checked1" id="checked1" >
+		<label for="checked1">选择状态{{checked1}}</label>
+
+		<input type="checkbox" v-model="checked" value="html1" id="html1">
+		<label for="html1">HTML</label>
+		<br>
+		<input type="checkbox" v-model="checked" value="js1" id="js1">
+		<label for="js1">JS</label>
+		<br>
+		<input type="checkbox" v-model="checked" value="css1" id="css1">
+		<label for="css1">CSS</label>
+		<br>
+		<p>选择的项是{{checked}}</p>
+
+
+
+		<select v-model="selected" >
+		<option>html</option>
+		<option value="js">js</option>
+		<option>css</option>
+		</select>
+		<p>选择的项是{{selected}}</p>
+
+		给＜ selected＞添加属性 multiple 就可 多选了，
+		<select v-model="selected1" multiple>
+			<option>html</option>
+			<option value="js">js</option>
+			<option>css</option>
+		</select>
+		<p>选择的项是{{selected1}}</p>
+
+		<select v-model="selected" >
+		<option v-for="option in options" :value="option.value" >{{ option.text }}</option>
+		</select>
+		
+		
+		绑定值
+		<input type="radio" v-model="picked" :value="value" >
+		label 单选按钮 /label
+		<p > {{ picked }}</p>
+		<p >{{ value }}</p>
+
+		<input type="checkbox" v-model="toggle"
+			   :true-value="value1" :false-value="value2">
+		<label>复选框</label>
+		<p>{{ toggle }}</p>
+		<p>{{ valuel }}</p>
+		<p>{{ value2 }}</p>
+
+
+	<select v-model="selected" >
+	<option :value="{ number : 123 }">123</option>
+	</select>
+	{{ selected.number }}
+	
+	修饰符
+
+	使用修饰符 .lazy 会转变为在 change 事件中同步
+	message 并不是实时改变的，而是在失焦或按回车时才更新。
+	<input type="text" v-model .lazy="message" >
+	<p>{{ message }}</p>
+
+	可以将输入转换为 Number 类型
+	<input type="number" v-model.number="message" >
+	<p>{{ message }}</p>
+
+	修饰符 .trim 可以自动过滤输入的首尾空格
+	<input type="text" v-model.trim="message" >
+	<p>{{ message }}</p>
+	</div>
 	</body>
 	<script type="text/javascript">
-		
-		
+
+		var app =new Vue({
+			el :'#app' ,
+			data: {
+				message:"",
+				text:"",
+				picked:'js',
+				picked1:true,
+				checked1:false,
+				checked : [ 'html1','css1'],
+				selected :'html',
+				selected1:[ 'html','css'],
+				options:[
+					{text:'HTML',vlaue:'html'},
+					{text:'JS',vlaue:'js'},
+					{text:'CSS',vlaue:'CSS'}
+				],
+				value : 123,
+				toggle : false ,
+				value1  :'a ',
+				value2 :'b '
+		}
+		});
 	</script>
 
 </html>
