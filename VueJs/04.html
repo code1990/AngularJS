@@ -3,18 +3,83 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>第四章 v-bind class style 绑定</title>
 		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
 	</head>
 
 	<body>
-		<div id="app">
+	<p>DOM 元素经常会动态地绑定 class 类名或 style 样式，本章将介绍使用 v- bind 指令来绑定class style 的多种方法。</p>
 
+	<!--绑定 class 的几种方式-->
+		<div id="app">
+			<!--如果为真 则会拥有isActive属性 -->
+			<div :class="{'active':isActive}"></div>
+			<!--class 内的表达式每项为真时，对应的类名就会加载-->
+			<div class="static" :class="{'active':isActive,'error:'isError'"></div>
+			<!--:class计算属性过长 使用一个计算属性-->
+			<div :class="classes"></div>
+			<!--数组语法-->
+			<div :class="[activeCls,errorCls]"></div>
+			<!--三元条件表达式切换class-->
+			<div :class="[isActive?activeCls:'',errorCls]"></div>
+			<!--在数组语法中使用对象语法-->
+			<div :class="[{'active':isActive},errorCls]"></div>
+			<!--使用 data computed methods 三种方法-->
+			<button :class="classes1"></button>
+			<p>如果表达式较长或逻辑复杂，应该尽可能地优先使用计算属性。</p>
+			<br>
+			<!--在自定义组件上面使用-->
+			<my-component :class="{'active':isActive}"></my-component>
+
+			<h1>绑定内联样式</h1>
+			<div :style="{'color':color,'fontSize':'fontSize'+'px'}"></div>
+			<div :style="styles">文本</div>
+			<p>可以使用数组语法</p>
+			<div :style="[styleA,styleB]">文本</div>
+			<p>在实际中，:style 数组语法并不常用</p>
+			<p>使用:style时， Vue.js 会自动给特殊 css 加前缀， 比如 transform</p>
 		</div>
 	</body>
 	<script type="text/javascript">
-		
+		Vue.component("my-component",{
+			template:'<p class="article">一些文本</p>'
+		});
+		var app = new Vue({
+			el:"#app",
+			data:{
+				isActive:true,
+				isError:false,
+				error:null,
+				activeCls:active,
+				errorCls:error,
+				size:'large',
+				disabled:true,
+				color :'red',
+				fontSize : 14,
+				styles:{
+					color:'red',
+					fontSize:14+'px'
+				},
+				styleA:'color:red',
+				styleB:'fontSize:14px'
+		},
+			computed:{
+				classes:function () {
+					active:this.isActive && !this.error;
+					text:this.error && this.error.type ==='fail';
+				},
+				classes1:function () {
+					return [
+							'btn',
+						{
+							['btn-'+this.size]:this.size !=='',
+							['btn-disabled']:this.disabled
+						}
+					]
+				}
+			}
+		})
 		
 	</script>
 

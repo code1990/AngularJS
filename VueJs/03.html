@@ -3,19 +3,104 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>第三章 计算属性</title>
 		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
 	</head>
 
 	<body>
+		<p>模板内的表达式常用于简单的运算，当其过长或逻辑复杂时，会难以维护，本章的计算属性就是用于解决该问题的。</p>
 		<div id="app">
+			{{reversedText}}<br>
+			总价{{prices}}<br>
+			全名{{fullName}}
+		</div>
 
+		<div id="app1"></div>
+	    <div id="app2">
+			{{reversedText2}}<br>
+			{{reversedText3}}<br>
+			{{now}}
 		</div>
 	</body>
 	<script type="text/javascript">
-		
-		
+		var app = new Vue({
+			el:"#app",
+			data:{
+				text:"123.12",
+				package1:[
+					{name:"iphone7",price:7000,count:2},
+					{name:"ipad",price:2000,count:2}
+				],
+				package2:[
+					{name:"apple",price:5,count:2},
+					{name:"banana",price:3,count:2}
+				],
+				firstName:"Jim",
+				LastName:"Green"
+			},
+			/*每一个计算属性都包含 getter setter ，上面 示例都是计算属性的默认用getter*/
+			/*，我们只会用默认的 getter 方法来读取 个计算属性，在业务中很少用到setter,*/
+			/*在声明 个计算属性时，可以直接使用默认的写法，不必将 ge er se 都声明。*/
+			computed:{
+				reversedText:function () {
+					return this.text.split(",").reverse().join(",");
+				},
+				prices:function () {
+					var prices =0;
+					for (var i = 0; i < this.package1.length; i++) {
+						prices +=this.package1[i].price*this.package1[i].count;
+					}
+					for (var i = 0; i < this.package2.length; i++) {
+						prices +=this.package2[i].price*this.package2[i].count;
+					}
+					return prices;
+				},
+				fullName:{
+					//getter 用于读取
+					get:function () {
+						return this.firstName+" "+this.lastName;
+					},
+					//setter 写入时候触发
+					set:function (newValue) {
+						var names = newValue.split(" ");
+						this.firstName = names[0];
+						this.lastName = names[names.length-1];
+					}
+				}
+
+			}
+
+		});
+
+		var app1 = new Vue({
+			el:"#app1",
+			data:{
+				text:"123,456"
+			}
+
+		});
+
+		var app2 = new Vue({
+			el:"#app2",
+			/*计算属性是基于它的依赖缓存的。 个计算属性所依赖的数据发生变化时，它才会重新取值，所以
+text 只要不改变，计算属性也就不更新*/
+			computed:{
+				reversedText2:function () {
+					return app1.text.split(",").reverse().join(",");
+				},
+				/*Date.now（）不是响应式依赖，所以计算属性 now 不会更新。*/
+				now:function () {
+					return Date.now();
+				}
+			},
+			/*是 methods 则不同，只要重新渲染，它就会被调用，因此函数也会被执行*/
+			methods:{
+				reversedText3:function () {
+					return app1.text.split(",").reverse().join(",");
+				}
+			}
+		});
 	</script>
 
 </html>
