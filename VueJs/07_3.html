@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="">
+<head>
+    <meta charset="UTF-8">
+    <title>组件通信</title>
+    <script type="text/javascript" src="../js/vuejs/vue.js"></script>
+
+</head>
+<body>
+父组件与子组件之间的通信使用props
+子组件与父组件的之间的通信使用$emit
+兄弟组件之间通信 法 $dispatch()用于向上级派发事件，只要是它的父级（一级或多级以上〉
+跨级别组件之间的通信 $broadcast（） 是由上级向下级广播事件的，用法完全 致，只是方向相反
+
+这两种方法 旦发出事件后，任何组件都是可以接收到的 就近原则 而且会在第 次接收
+到后停止冒泡，除非返回 true
+
+
+Vue 2.x 推荐使用 个空的 Vue 实例作为中央事件总线（ bus ），也就是 个中介
+
+在子组件中，使用 this.$parent 可以直接访问该组件的父实例或组件，父组件也可以通过
+this.$children 访问它所有的子组件，而且可以递归向上或向下无线访问， 直到根实例或最内层的组
+件。
+
+Vue 提供了子组件索引的方法，用特殊的属性 ref来为子组件指定一个索引名称，示例代码如下：
+<div id="app">
+    <p>总数 ｛｛ total }}</p>
+    <p>{{message}}</p>
+    <my-component
+            @increase="handleGetTotal"
+            @reduce="handleGetTotal"></my-component>
+    <!--用 native 修饰符
+表示监听的是 个原生事件，监听的是该组件的根元素，-->
+    <my-component v-on:click.native="handleClick"></my-component>
+    <!--直接用了 v-model 定的 个数据
+dtotal 。-->
+    <my-component v-model="dtotal"></my-component>
+
+    <my-component></my-component>
+
+    <button @click="handleRef">通过 ref 获取子组件实例</button>
+    <component-b ref="comA"></component-b>
+</div>
+<script>
+    Vue.component('my-component', {
+        template: '<div> <button @click="handleIncrease">+ l </button><button @click="handleReduce">-1</button></div> <button @click＝"handleEvent">通过父链直接修改数据</button＞',
+        data: function () {
+            return {
+                counter: 0
+            }
+        },
+        /*，通 $emit（） 再把它传递给父组件 父组件用 v-on:increase on:reduce （示例使用的是语法糖）。*/
+        methods: {
+            handleIncrease: function () {
+                this.counter++;
+                this.$emit('increase', this.counter);
+            },
+            handleReduce: function () {
+                this.counter--;
+                this.$emit('reduce', this.counter);
+            },
+            handleDispatch: function () {
+                this.$dispatch("on-message 来自内部组件的数据");
+            },
+            handleEvent: function () {
+                //访问到父链后，可以做任何操作，比如直接修改数据
+                this.$parent.message = "来自组件 component-a 的内容";
+            }
+        }
+    });
+
+    Vue.component("component-a", {
+        template: "<button @click='handleEvent'> 传递事件</button>",
+        methods: {
+            handleEvent: function () {
+                bus.$emit("on-message", "来自组件component-a的内荣");
+            }
+        }
+    });
+
+    Vue.component("component-b", {
+        template: "<div>子组件</div>",
+        data: function () {
+            return {
+                message: "子组件内容"
+            }
+        }
+    });
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            total: 0,
+            dtotal: 0,
+            methods: {
+                handleGetTotal: function (total) {
+                    this.total = total;
+                },
+                handleRef: function () {
+                    //通过$refs来访问指定的实例
+                    /*在父组件模板中，子组件标签上使用 ref 指定 个名称，井在父组件内通过 this.$refs 来访问指
+名称的子组件 ，应当避免在模板或计算属性中使用础*/
+                    var msg = this.$refs.comA.message;
+                    console.log(msg);
+                },
+                events: {
+                    "on-message": function (msg) {
+                        this.message = msg;
+                    }
+                },
+                /*
+                * 首先创建了 个名为 bus 的空 Vue 实例，里面没有任何内容；然后全局定义了组件component-a ；最后创建 Vue 实例 app ，在 app 初始化时，也就是在生命周期 mounted 钩子函数里监听了来自 bus 的事件 on-message ，而在组件 component-a 中，点击按钮会通过 bus 把事件 on-message发出去，此时 app 就会接收到来自 bus 的事件，进而在回调里完成自己的业务逻辑。
+                *
+                *
+                *
+                *
+                * */
+                mounted: function () {
+                    var _this = this;
+                    //在实例初始化时，监听来自 bus 实例的事件
+                    bus.$on("on-message", function (msg) {
+                        _this.message = msg;
+                    });
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

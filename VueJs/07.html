@@ -3,18 +3,63 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>组件详解</title>
 		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
 	</head>
 
 	<body>
-		<div id="app">
+	组件（ Component ）是 Vue. 最核心的功能，也是整个框架设计最精彩的地方，当然也是最难
+	掌握的。
+	Vue扣的组件就是提高重用性的，让代码可复用
+	＜Card＞这些没见过的自定义标签就是组件，每个标签代表 个组件
 
+	<!--使用选项 props 来声明需要从父级接收的数据， props 的值可以是两种， 种是字
+符串数组，一种是对象-->
+		<div id="app">
+			<my-component message="来自父组件的数据"></my-component>
+			<!--短横分隔命名 而不是驼峰法则-->
+			<my-component warning-text="提示信息"></my-component>
+			<!--动态绑定数据-->
+			<my-component :message=”parentMessage” ></my-component>
+			<!--Vue2.x 通过 prop 传递数据是单向的了，-->
+			<!--业务中会经常遇到两种需要改变 prop 情况，一种是父组件传递初始值进来，子组件将它作
+为初始值保存起来，在自己的作用域下可以随意使用和修改。-->
+			<!--种情况就是 prop 作为需要被转变的原始值传入-->
+			<my-component :init-count="1" ></my-component>
+				<!--＜table ＞内直接使用组件是无效的-->
+			<!--常见的限制元素还有＜ul＞、＜ol＞、＜select>-->
+			<table>
+				<tbody is=”my-component” ></tbody>
+			</table>
+
+			<!--自定义事件-->
+			<!--，子组件用 $emit（）来触发事件通 $emit（） 再把它传递给父组件，父组件用$on（）来
+监昕子组件的事件-->
 		</div>
 	</body>
 	<script type="text/javascript">
-		
+		var child = {
+			template:"<div>局部注册组件的内容</div>"
+		}
+		Vue.component("my-component", {
+			//props 来自父级，而 data的是组件自己的数据
+			props:["message","initCount"],
+			template:"<div＞{{message}}</div><button @click='counter++'>{{counter}}</button><div>count</div>",
+			data : function () {
+				return {
+					message:"组件内容",
+					counter:0,
+					count:this.initCount
+				}
+			}
+		}) ;
+		var app = new Vue({
+			el:"#app",
+			components:{
+				"my-component":child
+			}
+		});
 		
 	</script>
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>7.7.1 开发一个数字输入框组件 </title>
+    <script type="text/javascript" src="../js/vuejs/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <input-number v-model="value" :max="10" :min="0"></input-number>
+
+</div>
+<script>
+    /*了解开发思路 实现根据业务来执行处理*/
+    Vue.component('input-number', {
+        template: '<div class="input-number"></div> ',
+        props: {
+            max: {
+                type: Number,
+                default: Infinity
+            },
+            min: {
+                type: Number,
+                default: -Infinity
+            },
+            value: {
+                type: Number,
+                default: 0
+            }
+        },
+        data: function () {
+            return {
+                currentValue: this.value
+            }
+        },
+        watch: {
+            currentValue: function (val) {
+                this.$emit('input', val);
+                this.$emit('on-change ', val);
+            },
+            value: function (val) {
+                this.updateValue(val);
+            }
+        },
+        methods: {
+            handleDown: function () {
+                if (this.currentValue <= this.min) return;
+                this.currentValue -= 1;
+            },
+            handleUp: function () {
+                if (this.currentValue <= this.min) return;
+                this.currentValue -= 1;
+            },
+            updateValue: function (val) {
+                if (val > this.max) val = this.max;
+                if (val < this.min) val = this.min;
+                this.currentValue = val;
+            },
+            handleChange: function (event) {
+            },
+            mounted: function () {
+                this.updateValue(this.value);
+            }
+        }
+    });
+
+    function isValueNurnber(value) {
+        return 0;
+    }
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            value: 5
+        }
+
+    });
+
+</script>
+</body>
+</html>

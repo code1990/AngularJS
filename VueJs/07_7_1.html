@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>开发一个标签页组件</title>
+    <script type="text/javascript" src="../js/vuejs/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <tabs v-model="activeKey">
+        <pane label="标签" name="1">
+            标签1的内容
+        </pane>
+        <pane label="标签" name="2">
+            标签1的内容
+        </pane>
+        <pane label="标签" name="3">
+            标签1的内容
+        </pane>
+    </tabs>
+
+</div>
+
+
+<script>
+    /*了解开发思路 实现根据业务来执行处理*/
+    Vue.component('pane', {
+        name: 'pane',
+        template: "<div></div>",
+        props: {},
+        data: function () {
+
+        },
+        methods: {},
+        watch: {},
+        mounted() {
+
+        }
+    });
+    /*了解开发思路 实现根据业务来执行处理*/
+    Vue.component('tabs', {
+        template: "<div></div>",
+        props: {},
+        data: function () {
+
+        },
+        methods: {},
+        watch: {}
+    });
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            activeKey: "1"
+        }
+
+    });
+</script>
+</body>
+</html>

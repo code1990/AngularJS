@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>7.4 使用 slot 分发内容</title>
+    <script type="text/javascript" src="../js/vuejs/vue.js"></script>
+</head>
+<body>
+当需要让组 组合使用，混合父组件的内容与子组件的模板时，就会用到 lot 这个过程叫作
+内容分发（ transclusion ）
+
+props 传递数据、 events 发事件和 slot 容分发就构成了 ue 组件的 API 来源，再复
+杂的组件也是由这 部分构成的。
+
+父组件模板的内容是在父组件作用域内编译，子组件模板的内容是在子组件作用域内编译。
+
+使用特殊的＜ lot>元素就可以为这个子组件开启一个 lot （插槽），在父组件模板
+里，插入在子组件标签内的所有内容将替代子组件的＜ lot> 标签及它的内容
+
+子组件 child-component 模板内定义了一个＜slot>元素
+在父组件没有使用 slot 时，会渲染这段默认的文本；如果写入了 slot 那就会替换整个＜slot>
+
+具名 Slot
+给＜ lot>元素指定一个 name 后可以分发多个内容，具名 lot 可以与单个 lot 共存，
+<div id="app">
+    <child-component v-show="showChild"></child-component>
+    <child-componentSon></child-componentSon>
+    <child-component>
+        <h2 slot="header">标题</h2>
+        <p>正文内容</p>
+        <p>更多的正文内容</p>
+        <div slot="footer">底部信息</div>
+        <template scope="props">
+            作用域插槽是 种特殊的 slot ，使用1个可以复用的模板替换己渲染元素
+            <p>来组父组件的内容 </p>
+
+            <!--，这里的 props只是 个临时变量，-->
+            <p>{{ props.msg }}</p>
+        </template>
+    </child-component>
+    作用域插槽更具代表性的用例是列表组件，允许组件自定义应该如何渲染列表每
+    <my-list :books=”books”>
+        <!--作用域插槽也可以是具名的 Slot-->
+        <template slot=”book” scope=”props”>
+            <li>{{props.bookName}}</li>
+        </template>
+    </my-list>
+
+    而 Vue2.x 提供了用来访问被 Slot 分发的内容的方法 slots
+
+    <!--递归组件的开发-->
+    <!--内联模板-->
+    <!--动态组件-->
+    Vue.js 提供了 个特殊的元素＜component> 用来动态地挂载不同的组件
+    异步组件
+    Vue.js 许将组件定义为 个工厂函数，动态地解析组件。
+    Vue. 只在组件需要渲染时触发工厂函数 并且把结果缓存起来，用于后面的再次渲染
+
+    Vue 异步更新 DOM 原理:Vue 会根据当前浏览器环境优先使用原生的 Promisethen MutationObserver ，如果都不支持，
+    就会采用 setTimeout 替。
+    $nextTick 就是用来知道什么时候 DOM 更新完成的
+    <div id="div" v-if="showDiv">这是 段文本</div>
+    <button @click="getText">获取div内容</button>
+
+    在＜script> 标签里使用 text/x-template 类型，井且指定 id 将这个 id
+    template 。
+    使用 webpack 来编译 .vue 的单文件，从而优雅地解决 HTML
+    书写的问题。
+    <script type="text/x-template" id="my-component">
+        <div> 这是组件的内容</div>
+    </script>
+
+    我们现在所创建的实例都是通过 new Vue（）的形式创建出来的 。在一些非常特殊的情况下，我
+    们需要动态地去创建 Vue 实例， Vue 提供了 Vue.extend $mount 两个方法来手动挂载 个实例。
+    Vue.extend 基础 Vue 构造器，创建 个“子类”，参数是 个包含组件选项的对象。
+    如果 Vue 实例在实例化时没有收到 el 选项，它就处于“未挂载”状态，没有关联的 DOM
+    素。可以使用$mount（）手动地挂载 个未挂载的实例。这个方法返回实例自身，因而可以链式调用
+    其他实例方法。
+</div>
+<div id='mount-div'>
+
+</div>
+<script>
+    Vue.component("child-component", {
+        template: "<div>子组件</div><slot>如果父组件没有插入内容，我将作为默认出现＜</slot>"
+    });
+    /*如果想在子组件上绑定，那应该是*/
+    Vue.component("child-componentSon", {
+        template: "<div v-show='showChild'>子组件</div><slot name='header'></slot><slot name='footer'></slot><slot msg='来自子组件的内容'></slot>",
+        data: function () {
+            return {
+                showChild: true
+            }
+        }
+    });
+
+    Vue.component("my-list", {
+        props: {
+            books: {
+                type: Array,
+                default: function () {
+                    return [];
+                },
+                template: "<ul></ul>"
+            }
+        },
+        mounted: function () {
+            var header = this.$slots.header;
+            var main = this.$slots.default;
+            var footer = this.$slots.footer;
+            console.log(footer);
+            console.log(footer[0].elm.innerHTML);
+        }
+    });
+
+    Vue.component("child-component1", function (resolve, reject) {
+        window.setTimeout(function () {
+            resolve({
+                template: '<div>我是异步渲染的</div>'
+            });
+        }, '2000');
+    });
+    var app = new Vue({
+        el: "#app",
+        data: {
+            /*这里的状态showChild 绑定的是父组件的数据*/
+            showChild: true,
+            showDiv:false
+        },
+        methods:{
+            getText:function() {
+                this.showDiv = true;
+                this.$nextTick(function () {
+                    var text = document.getElementById("div").innerHTML;
+                    console.log(text);
+                })
+            }
+        }
+    });
+
+    var MyComponent =Vue.extend({
+        template :'<div>Hello{{name}}</div>',
+        data:function(){
+            return {
+                name:"Arsen"
+            }
+        }
+    });
+    /*用$mount（）手动地挂载 个未挂载的实例*/
+    new MyComponent.$mount('#mount-div');
+
+</script>
+</body>
+</html>
