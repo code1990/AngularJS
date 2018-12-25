@@ -3,13 +3,121 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>plugin</title>
 		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
 	</head>
 
 	<body>
-		<div id="app">
+	Vue扣提供了插件机制，可以在全局添加 些功能。它们可以简单到几个方法、属性
+	MyPlugin.install = function (Vue, options) {
+
+	});
+
+	通过 Vue.use()来使用插件：
+	Vue.use(MyPlugin)
+	绝大多数情况下，开发插件主要是通过 NPM 发布后给别人使用的， 在自己的项目中可以直接
+	在入口调用以上的方法，无须多 步注册和使用的步骤
+
+	绍 webpack 时提到它的主要使用场景是单页面富应用（ SPA ，而 SPA 的核心就是前
+	端路由。那什么是路由呢？通俗地讲，就是网址，比如 https:/ www.iviewui com/docs/ guide/introduce;
+	再专业 就是每次 GET. POST 等请求在服务端有 个专门的正则配置列表，然后匹配到
+	体的 条路径后，分发到不同的 Controller 进行各种操作，最终将 htrr 或数据返回给前端，这就完
+	成了 IO
+
+	目前绝大多数的网站都是这种后端路由 ，也就是多页面的，这样的好处有很多 ，比如
+	页面可以在服务端渲染好直接返回给浏览器，不用等待前端加载任何 js css 就可以直接显示网页内容，再比如对 SEO友好等
+
+	然后就有了前后端分离的开发模式，后端只提供 API 来返回数据，前端通过 Ajax 获取数据后，
+	再用一定的方式渲染到页面里，这么做的优点就是前后端做的事情分得很清楚，后端专注在数据上，前端专注在交互和可视化上，
+
+	前端路由，即由前端来维护一个路由规则。实现有两种，一种是利用 url hash 就是常说的
+	锚点（刑， JavaScrip／通过 hashChange 事件来监听 url 的改变， IE7 及以下需要用轮询：另一种就
+	HTML5 History 模式，它使 url 看起来像普通网站那样，以“／”分剖，没有＃，但页面并没有
+	跳转，不过使用这种模式需要服务端支持，服务端在接收到所有的请求后，在fl 指向同一个 html
+	件，不然会出现 404 。因此， SPA 只有一个html时，整个网站所有的内容都在这 html 里，通过
+	JavaScript 来处理。
+
+	npm install --save vue-router
+
+	const let 的主要区别是，
+	const 用于声明常量，也就是声明后不能再修改．
+	let   用于声明变量 代替var
+
+	使用了异步路由后，编译出的每个页面的 js 都叫作 chunk （块）
+
+	RouterConfig 里，设置 mode history 会开 HTMLS Hist。可路由模式，通过“／”设置
+	路径。如果不配置 mode ，就会使用“＃”来设置路径。开启 History 路由，在生产环境时服务端必须进行配置，将所有路由都指向同一个 html ，或设置 404 页面为该 html ，否则刷新时页面会出现404
+	const RouterConfig = {
+	／／使用 HTMLS History 路由模式
+	mode :’history ’,
+	routes : Routers
+	) ;
+	const router= new VueRouter(RouterConfig);
+
+	webpack-dev-server 也要配置下来支持 History 路由，在 package. on 中修改 dev 命令：
+	” dev”:”webpack-dev-server --open --history-api-fallback --config
+	webpack.config.j s ”
+
+	增加了--history-api-fallback ，所有的路 由都会指向 index.html
+
+	vue-router 有两种跳转页面的方法，第 种是使用内置的＜router-link＞组件，它会被渲染为<a></a>标签
+	<router-link to="/about">跳转到 about</router-link>
+	<!--to是一个prop ，指定需要跳转的路径-->
+	router-link还有其他的 prop 常用的有
+	tag 可以指定渲染成什么标签，
+	<router-link to="/about" tag="li"></router-link>
+	使用 replace 不会留下 History 记录，所以导航后不能用后退键返回上一个页面
+	<router-link to="/about" repalce></router-link>
+
+	active-class
+	当＜router-link>对应的路由匹配成功时，会自动给当前元素设置一个名为 router-link-active
+	class ，设置 prop: active-class 可以修改默认的名称
+
+	类似 window. location.href
+	this.$router.push("/user/123");
+
+	$router 还有其他 些方法
+	replace
+	类似于＜ro uter-link＞的 replace 功能 ，它不会向 history 添加新记录，而是替换掉当前的
+	history 录，如 this.$router.replace （’／user 123 ＇）；
+	• go
+	类似于 window.history.go(2)，在 history 记录中向前或者后退多少步，参数是整数，例如window.history.go(2) 前进多少页
+
+	以通过 JavaScript 修改＜title＞的内容
+	window.document.title 要修改的网页标题 ’；
+
+	vue-router 提供了导航钩子
+	beforeEach afterEach 会在路由即将改变前和改变后触发，所以设置标题可以在 beforeEach	钩子完成。
+	
+	const router = newVueRouter (RouterConfig) ;
+	router.beforeEach((to, from , next) => {
+	window.document.title = to.meta.title ;
+	next();
+	});
+
+	导航钩子有 个参数：
+	• to 即将要进入的目标的路由对象
+	• from 当前导航即将要离开的路由对象
+	• next 调用该方法后，才能进入下一个钩子。
+
+	路由列表的 meta 宇段可以自定义 些信息，比如我们将每个页面的 title 写入了 meta 来统
+	维护， beforeEach 钩子可以从路由对象to里获取 meta 信息，从而改变标题。
+
+	nextO方法还可以设置参数，比如下面的场景。
+	某些页面需要校验是否登录，如果登录了就可以访问，否则跳转到登录页。这里我们通过
+	localStorage 来简易判断是否登录，示例代码如下
+	window.localStorage.getltem ('token')
+
+
+	是Vuex 很像是一种与开发者的约定，所以涉及改变数据的，就使用 mutations ，存在业务逻辑的，就用 actions 。至于将业务	逻辑放在 action 里还是 Vue 组件里完成，就需要根据实际场景拿捏了。
+
+	最后一个选项是 modules ，它用来将 store 分割到不同模块
+	。每个 module 拥有自己的 state getters mutations actions ，而且可以
+	多层嵌套。
+
+	module mutation getter 接收的第一个参数 state 是当前模块的状态。在 actions getters，还可以接收一个参数 rootState 来访问根节点的状态。 比如 getters中 rootState 将作为3个参数
+	<div id="app">
 
 		</div>
 	</body>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VUEX</title>
+</head>
+<body>
+虽然 bus 己经可以很好地解决跨组件通信，但
+它在数据管理、维护、架构设计上还只是 个简单的组件，而 Vuex 却能更优雅和高效地完成状态
+管理。
+
+npm install --save vuex
+它的用法与刊。router 类似，在 main.js 里，通过 Vue.use（）使用 Vuex:
+import Vuex from 'vuex';
+Vue.use(Vuex) ;
+const store = new Vuex . Store({
+II vuex 的配置
+});
+
+仓库 store 包含了应用的数据（状态）和操作过程。 Vuex 里的数据都是响应式的，任何组件使
+用同 store 的数据时，只要 store 的数据变化，对应的组件也会 即更新。
+
+在组件内，来自 store 的数据只能读取，不能手动改变，改变 store 中数据的唯 途径就是显式
+地提交 mutations
+
+Vuex 还有其他 个选项可以使用： getters actions modules
+
+</body>
+</html>

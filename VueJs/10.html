@@ -1,21 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 
-	<head>
-		<meta charset="UTF-8">
-		<title></title>
-		<script type="text/javascript" src="../js/vuejs/vue.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>使用 webpack </title>
+    <script type="text/javascript" src="../js/vuejs/vue.js"></script>
 
-	</head>
+</head>
 
-	<body>
-		<div id="app">
+<body>
+前端自动化（半自动化〉工程主要解决以下问题：
+• JavaScript css 代码的合井和压缩
+• css 预处理 Less Sass Stylus 的编译。
+• 生成雪碧图（ CSS Sprite ）。
+• ES6转 ES5.
+• 模块化。
+webpack 就是来处理模块间的依赖关系的，并把它们进行打包。
 
-		</div>
-	</body>
-	<script type="text/javascript">
-		
-		
-	</script>
+先介绍两个 ES6 中的语 export impo此，
+
+export import 是用来导出和导入模块的。 个模块就是 js 文件，它拥有独立的作用域，
+<div id="app">
+    webpack 基础配置
+    1. npm init #首先，创建 个目录，比如 demo ，使用 NPM 初始化配置：
+    2.执行后，会有 系列选项，可以按回车键快速确认，完成后会在 demo 目录生成 package.json
+    的文件。
+    3.npm install webpack --save-dev #save-dev 会作为开发依赖来安装 webpack 。
+     之后在本地局部安装 webpack:
+    4.npm install webpack-dev-server --save-dev #接着需要安装 webpack-dev-server ，
+    ==============================
+    首先在目录 DEMO 下创建 js 文件： webpack.config.js ，井初始化它的内容：
+
+    然后在 package.json scripts 里增力日一个快速启动 webpack-dev-server 服务的脚本：
+
+    当运行 npm run dev 命令时，就会执行 webpack-dev-server --open --config webpack.config.js命令。
+
+    demo 目录下新建 个空的 main.js 作为入口的文件，然后在 webpack.config. 中进行入口
+    和输出的配置：
+
+    entry 中的 main 就是我们配 的单入口， webpack 会从 main.js 文件开始工作
+
+    npm run dev
+
+    webpack --progress --hide-modules
+    这时会生成 demo/dist/main.js 文件，它只有不到 100 行，而且是没有压缩的
+
+    npm install css-loader --save-dev
+    npm install style-loader --save-dev
+    在 webpack.config.js 文件里配置 Loader，增加对.css 文件的处理：
+
+    通过 NPM 安装 extract-text-webpack-plugin 插件：
+    npm install extract-text-webpack-plugin --save-dev
+
+    webpack 虽然概念比较新，看似复杂，但它只不过是 js 配置文件，只要搞清楚入口（ Entη ）、
+    出口（ Output ）、加载器（ Loaders ）和插件（ Plugins ）这 个概念，使用起来就不那么困惑了
+
+    .vue 单文件组件就是 个后缀名为 vue 的文件， webpack 中使用 vue-loader 就可
+    以对.vue 格式的文件进行处理。
+
+    npm install --save vue
+    npm install --save-dev vue-loader
+    npm install --save-dev vue-style-loader
+    npm install --save-dev vue-template-compiler
+    npm install --save-dev vue-hot-reload-api
+    npm install --save-dev babel
+    npm install --save-dev babel-loader
+    npm install --save-dev babel-core
+    npm install --save-dev babel-plugin-transform-runtime
+    npm install --save-dev babel-preset- es2015
+    npm install --save-dev babel-runtime
+
+    安装 url-loader file-loader 来支持图片、字体等文件
+    npm install --save-dev url-loader
+    npm install --save-dev file-loader
+
+    打包会用到下面两个依赖，使用 NPM 安装：
+    npm install --save-dev webpack-merge
+    npm install --save -dev html-webpack-plugin
+
+
+    常用的loader有:
+
+    处理样式的：style-loader,css-loader,postcss-loader,sass-loader,less-loder
+    处理es6的：babel-loader（要连同babel-core, babel-preset-env）一起用
+    处理图片的：file-loader, url-loader, image-webpack-loader
+    Plugins
+    常用的plugin有：
+
+    压缩js：uglifyjs-webpack-plugin
+    合并&压缩css： mini-css-extract-plugin，optimize-css-assets-webpack-plugin
+    清除目录：clean-webpack-plugin
+    生成html：html-webpack-plugin
+    postcss相关的：postcss-plugin-px2rem，postcss-preset-env，postcss-sprites，autoprefixer
+    webpack自带的方法：webpack.ProvidePlugin等
+
+    在该目录下执行 npm install 命令会自动安装所有的
+    依赖，然后执行 npm run dev 启动服务
+
+    最后在终端运行 npm run build 等待 会就会完成打包，成功后在 demo 下会生成 dist
+    目录，里面就是打包完的所有静态资源
+
+</div>
+</body>
+<script type="text/javascript">
+/*分别创建button.vue模板*/
+/*分别创建title.vue模板*/
+/*在app.vue中引用上面的2个模板 编译*/
+</script>
 
 </html>
